@@ -17,10 +17,9 @@ import sakethh.kamp.presentation.home.Home
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
-import java.net.Inet4Address
 
 fun main() {
-    embeddedServer(Netty, port = 45454, host = Inet4Address.getLocalHost().hostName, module = Application::module)
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
 
