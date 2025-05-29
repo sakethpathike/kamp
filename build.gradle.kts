@@ -25,6 +25,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.github.sakethpathike:kapsule:0.1.2")
     implementation("io.ktor:ktor-server-config-yaml")
+    implementation("org.jsoup:jsoup:1.20.1")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
