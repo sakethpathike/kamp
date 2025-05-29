@@ -26,7 +26,7 @@ fun main() {
 
 fun Application.module() {
     install(CORS){
-        allowHost("https://sakethpathike.netlify.app/")
+        allowHost(host = "sakethpathike.netlify.app")
     }
     val allRoutes = listOf(Route(route = "/", content = {
         with(it) {
