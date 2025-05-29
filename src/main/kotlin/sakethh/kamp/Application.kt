@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.ScriptType
@@ -24,6 +25,9 @@ fun main() {
 }
 
 fun Application.module() {
+    install(CORS){
+        allowHost("https://sakethpathike.netlify.app/")
+    }
     val allRoutes = listOf(Route(route = "/", content = {
         with(it) {
             this.Home()
