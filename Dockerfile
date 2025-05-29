@@ -17,5 +17,5 @@ RUN gradle buildFatJar --no-daemon
 FROM amazoncorretto:23-alpine AS runtime
 EXPOSE 8080
 RUN mkdir /app
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/kapsuleDocs.jar
+COPY --from=build /home/gradle/src/build/libs/*.jar /app/kamp.jar
 ENTRYPOINT ["java","-jar","/app/kamp.jar"]
