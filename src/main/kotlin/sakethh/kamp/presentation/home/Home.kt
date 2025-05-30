@@ -165,7 +165,7 @@ private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
             githubRepoDTO.tags.forEach {
                 Text(
                     text = it,
-                    color = Colors.secondaryContainerDark,
+                    color = Colors.secondaryContainerDarkMediumContrast,
                     fontWeight = FontWeight.Predefined.Normal,
                     fontFamily = Constants.Inter,
                     fontSize = 12.5.px,
