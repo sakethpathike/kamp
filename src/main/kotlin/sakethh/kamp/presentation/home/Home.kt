@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.html.BODY
 import kotlinx.html.FlowContent
 import kotlinx.html.onMouseDown
-import sakethh.kamp.domain.model.RepoDTO
+import sakethh.kamp.domain.model.GithubRepoDTO
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
@@ -33,7 +33,7 @@ fun BODY.Home() {
             color = Colors.primaryDark
         )
         Text(
-            text = "Android Dev ${Typography.bullet} Kotlin ${Typography.bullet} B.Tech CSE student",
+            text = "Android Dev • Kotlin Multiplatform • B.Tech CSE student",
             fontWeight = FontWeight.Predefined.Medium,
             fontSize = 18.px,
             fontFamily = Constants.Inter,
@@ -82,14 +82,14 @@ fun BODY.Home() {
         Spacer(modifier = Modifier.height(5.px))
         Text(
             fontFamily = Constants.Inter,
-            text = "Data shown here is pulled from my pinned GitHub repositories.",
-            fontWeight = FontWeight.Predefined.Thin,
+            text = "Data includes information from my pinned GitHub repositories and project tags.",
+            fontWeight = FontWeight.Predefined.Light,
             fontSize = 14.px,
             color = Colors.primaryDark
         )
         Spacer(modifier = Modifier.height(15.px))
         getPinnedRepos().forEach {
-            RepoItem(repoDTO = it)
+            RepoItem(githubRepoDTO = it)
             Spacer(modifier = Modifier.height(15.px))
         }
         Spacer(modifier = Modifier.height(25.px))
@@ -100,7 +100,7 @@ fun BODY.Home() {
             Spacer(modifier = Modifier.height(5.px))
             Text(
                 text = """
-                    This site is built with <a style = "color: ${Colors.primaryDark}" href= "https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a> and served by <a style = "color: ${Colors.primaryDark}" href="https://ktor.io" target="_blank">Ktor</a>.
+                    <a style = "color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp">This site</a> is built with <a style = "color: ${Colors.primaryDark}" href= "https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a> and served by <a style = "color: ${Colors.primaryDark}" href="https://ktor.io" target="_blank">Ktor</a>.
                 """.trimIndent(),
                 fontSize = 16.px,
                 fontFamily = Constants.Inter,
@@ -112,20 +112,21 @@ fun BODY.Home() {
     }
 }
 
-private fun FlowContent.RepoItem(repoDTO: RepoDTO) {
+
+private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
     Column {
         Row(
             horizontalAlignment = HorizontalAlignment.Center,
             modifier = Modifier.cursor(Cursor.Pointer),
             onThisElement = {
                 val func =
-                    "window.open(\"https://github.com/${if (repoDTO.name.contains("/")) repoDTO.name else "sakethpathike/${repoDTO.name}"}\", \"_blank\");"
+                    "window.open(\"https://github.com/${if (githubRepoDTO.name.contains("/")) githubRepoDTO.name else "sakethpathike/${githubRepoDTO.name}"}\", \"_blank\");"
                 onMouseDown = func
             }) {
             MaterialIcon(iconCode = "open_in_new", modifier = Modifier.color(Colors.primaryDark).fontSize(14.px))
             Spacer(modifier = Modifier.width(2.5.px))
             Text(
-                text = repoDTO.name,
+                text = githubRepoDTO.name,
                 color = Colors.primaryDark,
                 fontSize = 18.px,
                 fontWeight = FontWeight.Predefined.Bold,
@@ -134,7 +135,10 @@ private fun FlowContent.RepoItem(repoDTO: RepoDTO) {
         }
         Spacer(modifier = Modifier.height(5.px))
         Text(
-            text = repoDTO.description, fontSize = 16.px, color = Colors.secondaryDark, fontFamily = Constants.Inter
+            text = githubRepoDTO.description,
+            fontSize = 16.px,
+            color = Colors.secondaryDark,
+            fontFamily = Constants.Inter
         )
         Spacer(modifier = Modifier.height(5.px))
         Row(
@@ -146,9 +150,28 @@ private fun FlowContent.RepoItem(repoDTO: RepoDTO) {
             )
             Spacer(modifier = Modifier.width(5.px))
             Text(
-                text = repoDTO.starCount, fontFamily = Constants.Inter, color = Colors.secondaryDark,
+                text = githubRepoDTO.starCount, fontFamily = Constants.Inter, color = Colors.secondaryDark,
                 fontSize = 14.px
             )
+        }
+        Spacer(modifier = Modifier.height(5.px))
+        Row(
+            modifier = Modifier.display(Display.Flex).custom(
+                """
+            flex-wrap: wrap; gap: 5px;
+        """.trimIndent()
+            )
+        ) {
+            githubRepoDTO.tags.forEach {
+                Text(
+                    text = it,
+                    color = Colors.secondaryContainerDark,
+                    fontWeight = FontWeight.Predefined.Normal,
+                    fontFamily = Constants.Inter,
+                    fontSize = 12.5.px,
+                    modifier = Modifier.padding(2.5.px)
+                )
+            }
         }
     }
 }
@@ -176,8 +199,8 @@ private fun FlowContent.ContactItem(imageSrc: String, string: String, url: Strin
 }
 
 // as of now this is directly used in the presentation layer, ig that's not how it works (according to clean arch 🤓☝️)
-fun getPinnedRepos(): List<RepoDTO> = runBlocking {
-    val pinnedRepos = mutableListOf<RepoDTO>()
+fun getPinnedRepos(): List<GithubRepoDTO> = runBlocking {
+    val pinnedRepos = mutableListOf<GithubRepoDTO>()
     HttpClient.newHttpClient().send(
         HttpRequest.newBuilder().GET().uri(URI.create("https://github.com/sakethpathike")).build(),
         HttpResponse.BodyHandlers.ofString()
@@ -201,14 +224,45 @@ fun getPinnedRepos(): List<RepoDTO> = runBlocking {
                         pinnedItem.substringAfter("<span itemprop=\"programmingLanguage\">").substringBefore("</span>")
                             .trim()
                     pinnedRepos.add(
-                        RepoDTO(
+                        GithubRepoDTO(
                             name = name,
                             description = description,
                             starCount = starCount,
-                            programmingLanguage = programmingLanguage
+                            programmingLanguage = programmingLanguage,
+                            tags = tags.find {
+                                it.repoName == name
+                            }?.tags ?: emptyList()
                         )
                     )
                 }
         }
     pinnedRepos.toList()
 }
+
+data class Tags(val repoName: String, val tags: List<String>)
+
+private val tags = listOf(
+    Tags(
+        repoName = "LinkoraApp/Linkora", tags = listOf(
+            Constants.Kotlin,
+            Constants.KMP,
+            Constants.CMP,
+            Constants.ANDROID_SDK,
+            Constants.ANDROID_JETPACK,
+            Constants.KtorClient,
+            Constants.RealTimeSync
+        )
+    ), Tags(
+        repoName = "LinkoraApp/sync-server", tags = listOf(
+            Constants.Kotlin, Constants.KtorServer, Constants.Exposed, Constants.RealTimeSync
+        )
+    ), Tags(
+        repoName = "kapsule", tags = listOf(
+            Constants.Kotlin, Constants.KMP, Constants.kotlinxHtml, Constants.KT_DSL
+        )
+    ), Tags(
+        repoName = "JetSpacer", tags = listOf(
+            Constants.Kotlin, Constants.ANDROID_SDK, Constants.JetpackCompose, Constants.KtorClient
+        )
+    )
+)

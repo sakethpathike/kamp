@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.ScriptType
@@ -18,9 +18,10 @@ import sakethh.kamp.presentation.home.Home
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
+import java.net.Inet4Address
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = 8080, host = Inet4Address.getLocalHost().hostAddress, module = Application::module)
         .start(wait = true)
 }
 
@@ -73,8 +74,8 @@ fun Application.module() {
                     }, fonts = listOf(
                         "https://fonts.googleapis.com/icon?family=Material+Icons",
                         "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded",
-                        "https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
-                    ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
+                            "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
+                        ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
                         """
                           overflow-y: auto;
                     """.trimIndent()
