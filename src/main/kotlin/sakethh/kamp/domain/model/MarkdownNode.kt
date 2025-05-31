@@ -1,0 +1,11 @@
+package sakethh.kamp.domain.model
+
+sealed interface MarkdownNode
+
+data class Heading(val level: Int, val text: String) : MarkdownNode
+data class Text(val value: String) : MarkdownNode
+data class Quote(val text: String) : MarkdownNode
+data class CodeBlock(val text: String) : MarkdownNode
+data class ListItem(val text: String) : MarkdownNode
+data class Link(val text: String) : MarkdownNode
+data object Divider: MarkdownNode
