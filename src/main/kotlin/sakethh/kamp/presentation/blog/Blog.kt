@@ -1,6 +1,7 @@
 package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
+import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
@@ -32,10 +33,9 @@ fun BODY.Blog(fileName: String) {
         val blogFile = object {}.javaClass.getResource("/blog/$fileName.md")!!
         val blogMeta = blogFile.readText().substringAfter("---").substringBefore("---").trim()
         val blogTitle = blogMeta.substringAfter("title:").substringBefore("\n").trim()
-        val blogDescription =
-            if (blogMeta.substringAfter("---").substringBefore("---").split("\n")[1].trim()
-                    .startsWith("description")) blogMeta.substringAfter("description:").substringBefore("\n")
-                .trim() else ""
+        val blogDescription = if (blogMeta.substringAfter("---").substringBefore("---").split("\n")[1].trim()
+                .startsWith("description")
+        ) blogMeta.substringAfter("description:").substringBefore("\n").trim() else ""
         val blogPubDateTime = blogMeta.substringAfter("pubDatetime:").substringBefore("\n").trim()
         Text(
             text = blogTitle,
@@ -79,5 +79,6 @@ fun BODY.Blog(fileName: String) {
             fontSize = 18.px,
             text = blogFile.readText().substringAfter("pubDatetime").substringAfter("---").trim()
         )
+        Footer()
     }
 }
