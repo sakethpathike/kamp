@@ -27,14 +27,18 @@ object MarkdownParser {
 
                 trimmedLine.startsWith("```") -> nodes.add(
                     CodeBlock(
-                    text = allLines.subList(
-                    currentLineNumber + 1,
-                    allLines.subList(currentLineNumber + 1, allLines.lastIndex).indexOf("```").also {
-                        skipUntilLineNumber = it
-                    }).joinToString(separator = "\n")))
+                        text = allLines.subList(
+                            currentLineNumber + 1,
+                            allLines.subList(currentLineNumber + 1, allLines.size).indexOf("```").also {
+                                skipUntilLineNumber = currentLineNumber + 1 + it + 1 // we also need
+                                // to keep track of previous lines
+                                // which are not included in this sublist
+                            }).joinToString(separator = "\n")
+                    )
+                )
 
-                leadingSpaceExists && (trimmedLine.startsWith("-") || trimmedLine.startsWith("*") || trimmedLine.startsWith(
-                    "+"
+                leadingSpaceExists && (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ") || trimmedLine.startsWith(
+                    "+ "
                 ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLine)) -> nodes.add(ListItem(text = currentLineContent))
 
 
@@ -42,9 +46,9 @@ object MarkdownParser {
                     Divider
                 )
 
-                Regex("^#{1,6}\\s").containsMatchIn(trimmedLine) -> nodes.add(Heading(level = trimmedLine.count {
+                Regex("^#{1,6}\\s").containsMatchIn(trimmedLine) -> nodes.add(Heading(level = trimmedLine.takeWhile {
                     it == '#'
-                }, text = trimmedLine.substringAfter(" ").trim()))
+                }.length.coerceAtMost(6), text = trimmedLine.substringAfter(" ").trim()))
 
                 Regex("^\\[[^]]+]:\\s*\\S+\\s*$").containsMatchIn(trimmedLine) -> nodes.add(Link(currentLineContent))
 
