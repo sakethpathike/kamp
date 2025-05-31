@@ -17,7 +17,7 @@ import java.net.http.HttpResponse
 
 fun BODY.Home() {
     Column(
-        id = "home_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
+        id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
         Span(onThisElement = {}) {
             InlineCode(

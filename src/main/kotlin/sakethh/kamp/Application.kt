@@ -14,6 +14,7 @@ import kotlinx.html.script
 import kotlinx.html.stream.createHTML
 import kotlinx.html.unsafe
 import sakethh.kamp.domain.model.Route
+import sakethh.kamp.presentation.blog.Blog
 import sakethh.kamp.presentation.home.Home
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kapsule.*
@@ -30,11 +31,23 @@ fun Application.module() {
         allowHost(host = "sakethpathike.github.io")
         allowHost(host = "sakethpathike.netlify.app")
     }
-    val allRoutes = listOf(Route(route = "/", content = {
+    val blogFileNames = listOf("synchronization-in-linkora")
+    val allRoutes = mutableListOf(Route(route = "/", content = {
         with(it) {
             this.Home()
         }
     }))
+    blogFileNames.forEach { fileName ->
+        allRoutes.add(
+            Route(
+                route = "/blog/${fileName}",
+                content = {
+                    with(it) {
+                        Blog(fileName)
+                    }
+                }
+            ))
+    }
     routing {
         staticResources(remotePath = "/", basePackage = "static")
         allRoutes.forEach { currentRoute ->
@@ -46,16 +59,16 @@ fun Application.module() {
                             unsafe {
                                 +"""
       document.addEventListener("DOMContentLoaded", () => {
-        const home_page = document.getElementById("home_page");
+        const current_page = document.getElementById("current_page");
         const isMobile = window.matchMedia("(max-width: 767px)").matches;
         
         if(isMobile){
-            home_page.style.boxSizing = "border-box";
-            home_page.style.padding = "15px";
-            home_page.style.width = "100%";
+            current_page.style.boxSizing = "border-box";
+            current_page.style.padding = "15px";
+            current_page.style.width = "100%";
         } else {            
-            home_page.style.transform = "scale(1.2)";
-            home_page.style.transformOrigin = "top left";
+            current_page.style.transform = "scale(1.2)";
+            current_page.style.transformOrigin = "top left";
         }
         
       });
@@ -74,6 +87,7 @@ fun Application.module() {
                     }, fonts = listOf(
                         "https://fonts.googleapis.com/icon?family=Material+Icons",
                         "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded",
+                            "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
                             "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
                         ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
                         """
