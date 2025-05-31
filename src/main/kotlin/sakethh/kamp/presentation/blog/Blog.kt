@@ -9,11 +9,7 @@ import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
-import sakethh.kapsule.utils.Display
-import sakethh.kapsule.utils.FontWeight
-import sakethh.kapsule.utils.HorizontalAlignment
-import sakethh.kapsule.utils.Shape
-import sakethh.kapsule.utils.px
+import sakethh.kapsule.utils.*
 
 fun BODY.Blog(fileName: String) {
     Column(
@@ -148,7 +144,7 @@ fun BODY.Blog(fileName: String) {
                         )
                     }
 
-                    is MarkdownNode.Text -> {
+                    is MarkdownNode.Paragraph -> {
                         Span(onThisElement = {}) {
                             it.inlineNodes.forEach {
                                 when (it) {
@@ -163,7 +159,18 @@ fun BODY.Blog(fileName: String) {
                                     }
 
                                     is InlineNode.Emphasis -> TODO()
-                                    is InlineNode.Link -> TODO()
+                                    is InlineNode.Link -> {
+                                        Text(
+                                            text = """
+                         <a style = "color: ${Colors.primaryDark}" href="${it.url}">${it.text}</a>
+                                            """.trimIndent(),
+                                            fontSize = 18.px,
+                                            fontFamily = Constants.Inter,
+                                            fontWeight = FontWeight.Predefined.Medium,
+                                            modifier = Modifier.width("fit-content").display(Display.Inline)
+                                        )
+                                    }
+
                                     is InlineNode.PlainText -> {
                                         Text(
                                             text = it.text,

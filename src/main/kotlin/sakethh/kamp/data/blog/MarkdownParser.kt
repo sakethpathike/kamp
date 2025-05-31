@@ -28,7 +28,7 @@ class MarkdownParser {
 
                 currentLineContent.isBlank() -> {
                     if (paragraphBuilder != null && paragraphBuilder!!.isNotBlank()) {
-                        nodes.add(MarkdownNode.Text(inlineNodes = processInlineElements(paragraphBuilder.toString())))
+                        nodes.add(MarkdownNode.Paragraph(inlineNodes = processInlineElements(paragraphBuilder.toString())))
                     }
                     paragraphBuilder = null
                 }
@@ -95,7 +95,7 @@ class MarkdownParser {
 
         // if there is any normal text, that's part of the paragraph or just a line
         if (paragraphBuilder != null && paragraphBuilder!!.isNotBlank()) {
-            nodes.add(MarkdownNode.Text(inlineNodes = processInlineElements(paragraphBuilder.toString())))
+            nodes.add(MarkdownNode.Paragraph(inlineNodes = processInlineElements(paragraphBuilder.toString())))
             paragraphBuilder!!.clear()
         }
         return nodes.toList()
@@ -106,7 +106,7 @@ class MarkdownParser {
         val inlineElements = mutableListOf<InlineNode>()
         var skipUntilIndex: Int = -1
         val tempPlainText = StringBuilder()
-        val fences = listOf('*', '_', '`')
+        val fences = listOf('*', '_', '`','[',']','(',')')
         string.forEachIndexed { index, currentChar ->
             if (index < skipUntilIndex) return@forEachIndexed
 
@@ -115,16 +115,24 @@ class MarkdownParser {
                 tempPlainText.clear()
             }
 
-            when {
-                currentChar == '`' -> {
+            when (currentChar) {
+                '`' -> {
                     inlineElements.add(
                         InlineNode.CodeSpan(
                             code = string.substring(startIndex = index + 1).substringBefore("`")
                         )
                     )
-                    skipUntilIndex = string.substring(startIndex = index + 1).indexOfFirst {
-                        it == '`'
-                    } + 2 + index
+                    skipUntilIndex = string.skipUntil(targetChar = '`', currentIndex = index)
+                }
+
+                '[' -> {
+                    inlineElements.add(
+                        InlineNode.Link(
+                            url = string.substring(startIndex = index).substringAfter("](").substringBefore(")"),
+                            text = string.substring(startIndex = index + 1).substringBefore("]")
+                        )
+                    )
+                    skipUntilIndex = string.skipUntil(targetChar = ')', currentIndex = index)
                 }
 
                 else -> tempPlainText.append(currentChar)
@@ -133,5 +141,11 @@ class MarkdownParser {
         inlineElements.add(InlineNode.PlainText(tempPlainText.toString()))
         tempPlainText.clear()
         return inlineElements
+    }
+
+    private fun String.skipUntil(targetChar: Char, currentIndex: Int): Int {
+        return this.substring(startIndex = currentIndex + 1).indexOfFirst {
+            it == targetChar
+        } + 2 + currentIndex
     }
 }
