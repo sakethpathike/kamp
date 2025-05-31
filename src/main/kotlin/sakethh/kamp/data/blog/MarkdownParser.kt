@@ -5,8 +5,8 @@ import sakethh.kamp.domain.model.*
 // https://spec.commonmark.org/0.31.2/#appendix-a-parsing-strategy
 object MarkdownParser {
 
-    fun mdToHtml(blogContent: String)/*: List<MarkdownNode>*/ {
-        figureOutTheLayout(blogContent)
+    fun mdToHtml(blogContent: String): List<MarkdownNode> {
+        return figureOutTheLayout(blogContent)
     }
 
     private var skipUntilLineNumber: Int? = null
@@ -23,13 +23,16 @@ object MarkdownParser {
             val leadingSpaceExists = (currentLineContent.length - trimmedLine.length) <= 3
 
             when {
-                trimmedLine.startsWith(">") -> nodes.add(Quote(text = currentLineContent))
+                trimmedLine.startsWith(">") -> nodes.add(Quote(text = currentLineContent.substringAfter(">").trim()))
 
                 trimmedLine.startsWith("```") -> nodes.add(
                     CodeBlock(
                         text = allLines.subList(
                             currentLineNumber + 1,
-                            allLines.subList(currentLineNumber + 1, allLines.size).indexOf("```").also {
+                            currentLineNumber + 1 + allLines.subList(currentLineNumber + 1, allLines.size)
+                                .indexOfFirst {
+                                    it == "```"
+                                }.also {
                                 skipUntilLineNumber = currentLineNumber + 1 + it + 1 // we also need
                                 // to keep track of previous lines
                                 // which are not included in this sublist
@@ -51,6 +54,8 @@ object MarkdownParser {
                 }.length.coerceAtMost(6), text = trimmedLine.substringAfter(" ").trim()))
 
                 Regex("^\\[[^]]+]:\\s*\\S+\\s*$").containsMatchIn(trimmedLine) -> nodes.add(Link(currentLineContent))
+
+                trimmedLine.startsWith("![") -> nodes.add(Image(src = trimmedLine.substringAfter("(").substringBefore(")"), altText = trimmedLine.substringAfter("![").substringBefore("](")))
 
                 else -> nodes.add(Text(value = currentLineContent))
             }

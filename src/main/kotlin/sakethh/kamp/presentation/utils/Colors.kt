@@ -1,6 +1,7 @@
 package sakethh.kamp.presentation.utils
 
 object Colors {
+    const val codeblockBG = "#1e1e2e"
     const val Background = "#131318"
     const val OnBackground = "#E4E1E9"
     const val ButtonContainerColor = "#BFC2FF"
