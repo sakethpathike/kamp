@@ -152,7 +152,8 @@ fun BODY.Blog(fileName: String) {
                             fontSize = 18.px,
                             color = Colors.onSurfaceDark,
                             fontFamily = Constants.Inter,
-                            fontWeight = FontWeight.Predefined.Normal
+                            fontWeight = FontWeight.Predefined.Normal,
+                            modifier = Modifier.margin(top = 5.px, bottom = 5.px)
                         )
                     }
 
