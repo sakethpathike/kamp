@@ -1,9 +1,10 @@
 package sakethh.kamp.data.blog
 
-import sakethh.kamp.domain.model.*
+import sakethh.kamp.domain.model.markdown.InlineNode
+import sakethh.kamp.domain.model.markdown.MarkdownNode
 
 // https://spec.commonmark.org/0.31.2/#appendix-a-parsing-strategy
-object MarkdownParser {
+class MarkdownParser {
 
     fun mdToHtml(blogContent: String): List<MarkdownNode> {
         return figureOutTheLayout(blogContent)
@@ -27,15 +28,19 @@ object MarkdownParser {
 
                 currentLineContent.isBlank() -> {
                     if (paragraphBuilder != null && paragraphBuilder!!.isNotBlank()) {
-                        nodes.add(Text(paragraphBuilder.toString()))
+                        nodes.add(MarkdownNode.Text(inlineNodes = processInlineElements(paragraphBuilder.toString())))
                     }
                     paragraphBuilder = null
                 }
 
-                trimmedLineContent.startsWith(">") -> nodes.add(Quote(text = currentLineContent.substringAfter(">").trim()))
+                trimmedLineContent.startsWith(">") -> nodes.add(
+                    MarkdownNode.Quote(
+                        text = currentLineContent.substringAfter(">").trim()
+                    )
+                )
 
                 trimmedLineContent.startsWith("```") -> nodes.add(
-                    CodeBlock(
+                    MarkdownNode.CodeBlock(
                         text = allLines.subList(
                             currentLineNumber + 1,
                             currentLineNumber + 1 + allLines.subList(currentLineNumber + 1, allLines.size)
@@ -51,21 +56,27 @@ object MarkdownParser {
 
                 leadingSpaceExists && (trimmedLineContent.startsWith("- ") || trimmedLineContent.startsWith("* ") || trimmedLineContent.startsWith(
                     "+ "
-                ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLineContent)) -> nodes.add(ListItem(text = currentLineContent))
+                ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLineContent)) -> nodes.add(MarkdownNode.ListItem(text = currentLineContent))
 
 
-                trimmedLineContent.startsWith("---") || trimmedLineContent.startsWith("___") || trimmedLineContent.startsWith("***") -> nodes.add(
-                    Divider
+                trimmedLineContent.startsWith("---") || trimmedLineContent.startsWith("___") || trimmedLineContent.startsWith(
+                    "***"
+                ) -> nodes.add(
+                    MarkdownNode.Divider
                 )
 
-                Regex("^#{1,6}\\s").containsMatchIn(trimmedLineContent) -> nodes.add(Heading(level = trimmedLineContent.takeWhile {
+                Regex("^#{1,6}\\s").containsMatchIn(trimmedLineContent) -> nodes.add(MarkdownNode.Heading(level = trimmedLineContent.takeWhile {
                     it == '#'
                 }.length.coerceAtMost(6), text = trimmedLineContent.substringAfter(" ").trim()))
 
-                Regex("^\\[[^]]+]:\\s*\\S+\\s*$").containsMatchIn(trimmedLineContent) -> nodes.add(Link(currentLineContent))
+                Regex("^\\[[^]]+]:\\s*\\S+\\s*$").containsMatchIn(trimmedLineContent) -> nodes.add(
+                    MarkdownNode.Link(
+                        currentLineContent
+                    )
+                )
 
                 trimmedLineContent.startsWith("![") -> nodes.add(
-                    Image(
+                    MarkdownNode.Image(
                         src = trimmedLineContent.substringAfter("(").substringBefore(")"),
                         altText = trimmedLineContent.substringAfter("![").substringBefore("](")
                     )
@@ -84,8 +95,43 @@ object MarkdownParser {
 
         // if there is any normal text, that's part of the paragraph or just a line
         if (paragraphBuilder != null && paragraphBuilder!!.isNotBlank()) {
-            nodes.add(Text(paragraphBuilder.toString()))
+            nodes.add(MarkdownNode.Text(inlineNodes = processInlineElements(paragraphBuilder.toString())))
+            paragraphBuilder!!.clear()
         }
         return nodes.toList()
+    }
+
+    // phase 2
+    fun processInlineElements(string: String): List<InlineNode> {
+        val inlineElements = mutableListOf<InlineNode>()
+        var skipUntilIndex: Int = -1
+        val tempPlainText = StringBuilder()
+        val fences = listOf('*', '_', '`')
+        string.forEachIndexed { index, currentChar ->
+            if (index < skipUntilIndex) return@forEachIndexed
+
+            if (currentChar in fences && tempPlainText.isNotEmpty()) {
+                inlineElements.add(InlineNode.PlainText(tempPlainText.toString()))
+                tempPlainText.clear()
+            }
+
+            when {
+                currentChar == '`' -> {
+                    inlineElements.add(
+                        InlineNode.CodeSpan(
+                            code = string.substring(startIndex = index + 1).substringBefore("`")
+                        )
+                    )
+                    skipUntilIndex = string.substring(startIndex = index + 1).indexOfFirst {
+                        it == '`'
+                    } + 2 + index
+                }
+
+                else -> tempPlainText.append(currentChar)
+            }
+        }
+        inlineElements.add(InlineNode.PlainText(tempPlainText.toString()))
+        tempPlainText.clear()
+        return inlineElements
     }
 }

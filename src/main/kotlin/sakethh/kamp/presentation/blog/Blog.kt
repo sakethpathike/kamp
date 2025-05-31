@@ -2,12 +2,14 @@ package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
 import sakethh.kamp.data.blog.MarkdownParser
-import sakethh.kamp.domain.model.*
+import sakethh.kamp.domain.model.markdown.InlineNode
+import sakethh.kamp.domain.model.markdown.MarkdownNode
 import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
+import sakethh.kapsule.utils.Display
 import sakethh.kapsule.utils.FontWeight
 import sakethh.kapsule.utils.HorizontalAlignment
 import sakethh.kapsule.utils.Shape
@@ -78,10 +80,10 @@ fun BODY.Blog(fileName: String) {
             )
         }
         Spacer(modifier = Modifier.height(25.px))
-        MarkdownParser.mdToHtml(blogFile.readText().substringAfter("pubDatetime").substringAfter("---").trim())
+        MarkdownParser().mdToHtml(blogFile.readText().substringAfter("pubDatetime").substringAfter("---").trim())
             .forEach {
                 when (it) {
-                    is CodeBlock -> {
+                    is MarkdownNode.CodeBlock -> {
                         Column(
                             modifier = Modifier.clip(Shape.RoundedRectangle(cornerRadius = 15.px)).backgroundColor(
                                 Colors.codeblockBG
@@ -98,12 +100,12 @@ fun BODY.Blog(fileName: String) {
                         }
                     }
 
-                    Divider -> Spacer(
+                    MarkdownNode.Divider -> Spacer(
                         modifier = Modifier.border(radius = 5.px, color = Colors.outlineDark, width = 1.25.px)
                             .backgroundColor(Colors.outlineDark).margin(top = 15.px, bottom = 15.px)
                     )
 
-                    is Heading -> {
+                    is MarkdownNode.Heading -> {
                         Heading(
                             level = it.level,
                             text = it.text,
@@ -111,7 +113,7 @@ fun BODY.Blog(fileName: String) {
                         )
                     }
 
-                    is Link -> {
+                    is MarkdownNode.Link -> {
                         Text(
                             text = "<this is link>${it.text}<this is link>",
                             fontWeight = FontWeight.Predefined.Normal,
@@ -120,7 +122,7 @@ fun BODY.Blog(fileName: String) {
                         )
                     }
 
-                    is ListItem -> {
+                    is MarkdownNode.ListItem -> {
                         Text(
                             text = it.text.run {
                                 if (this.startsWith("-")) {
@@ -137,7 +139,7 @@ fun BODY.Blog(fileName: String) {
                         )
                     }
 
-                    is Quote -> {
+                    is MarkdownNode.Quote -> {
                         Text(
                             text = "<i>${it.text}</i>",
                             fontWeight = FontWeight.Predefined.Black,
@@ -146,18 +148,38 @@ fun BODY.Blog(fileName: String) {
                         )
                     }
 
-                    is Text -> {
-                        Text(
-                            text = it.value,
-                            fontSize = 18.px,
-                            color = Colors.onSurfaceDark,
-                            fontFamily = Constants.Inter,
-                            fontWeight = FontWeight.Predefined.Normal,
-                            modifier = Modifier.margin(top = 5.px, bottom = 5.px)
-                        )
+                    is MarkdownNode.Text -> {
+                        Span(onThisElement = {}) {
+                            it.inlineNodes.forEach {
+                                when (it) {
+                                    is InlineNode.CodeSpan -> {
+                                        Text(
+                                            text = it.code,
+                                            fontSize = 16.5.px,
+                                            color = Colors.primaryDark,
+                                            fontFamily = Constants.JetBrainsMono,
+                                            fontWeight = FontWeight.Predefined.Bolder,
+                                        )
+                                    }
+
+                                    is InlineNode.Emphasis -> TODO()
+                                    is InlineNode.Link -> TODO()
+                                    is InlineNode.PlainText -> {
+                                        Text(
+                                            text = it.text,
+                                            fontSize = 18.px,
+                                            color = Colors.onSurfaceDark,
+                                            fontFamily = Constants.Inter,
+                                            fontWeight = FontWeight.Predefined.Normal,
+                                            modifier = Modifier.width("fit-content").display(Display.Inline)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    is Image -> {
+                    is MarkdownNode.Image -> {
                         Image(
                             src = it.src,
                             modifier = Modifier.margin(top = 5.px, bottom = 5.px)
