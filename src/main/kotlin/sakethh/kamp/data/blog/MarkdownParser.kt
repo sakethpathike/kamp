@@ -101,7 +101,7 @@ class MarkdownParser {
     }
 
     // phase 2
-    fun processInlineElements(string: String): List<InlineNode> {
+    private fun processInlineElements(string: String): List<InlineNode> {
         val inlineElements = mutableListOf<InlineNode>()
         var skipUntilIndex: Int = -1
         val tempPlainText = StringBuilder()
