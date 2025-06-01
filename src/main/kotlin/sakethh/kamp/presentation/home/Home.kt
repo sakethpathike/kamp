@@ -6,6 +6,7 @@ import kotlinx.html.FlowContent
 import kotlinx.html.onMouseDown
 import sakethh.kamp.domain.model.GithubRepoDTO
 import sakethh.kamp.presentation.common.Footer
+import sakethh.kamp.presentation.common.Header
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
@@ -20,7 +21,7 @@ fun BODY.Home() {
     Column(
         id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
-        Footer(selectedComponent = "home")
+        Header(selectedComponent = "home")
         Spacer(modifier = Modifier.height(25.px))
         Text(
             text = "Saketh Pathike",

@@ -9,7 +9,7 @@ import sakethh.kapsule.*
 import sakethh.kapsule.utils.Cursor
 import sakethh.kapsule.utils.px
 
-fun FlowContent.Footer(
+fun FlowContent.Header(
     selectedComponent: String, components: List<Triple<String, String, String>> = listOf(
         Triple(first = "Home.kt", second = "home", third = "/"),
         Triple(first = "Blog.kt", second = "blog", third = "/blog")

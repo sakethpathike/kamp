@@ -2,43 +2,38 @@ package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
 import sakethh.kamp.data.blog.MarkdownParser
+import sakethh.kamp.domain.model.BlogItem
 import sakethh.kamp.domain.model.markdown.EmphasisType
 import sakethh.kamp.domain.model.markdown.InlineNode
 import sakethh.kamp.domain.model.markdown.MarkdownNode
 import sakethh.kamp.presentation.common.Footer
+import sakethh.kamp.presentation.common.Header
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
-import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
 
-fun BODY.Blog(fileName: String) {
+fun BODY.BlogPage(fileName: String) {
     Column(
         id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
-        Footer(selectedComponent = "blog")
+        Header(selectedComponent = "blog")
         Spacer(modifier = Modifier.height(25.px))
 
-        val blogFile = object {}.javaClass.getResource("/blog/$fileName.md")!!
-        val blogMeta = blogFile.readText().substringAfter("---").substringBefore("---").trim()
-        val blogTitle = blogMeta.substringAfter("title:").substringBefore("\n").trim()
-        val blogDescription = if (blogMeta.substringAfter("---").substringBefore("---").split("\n")[1].trim()
-                .startsWith("description")
-        ) blogMeta.substringAfter("description:").substringBefore("\n").trim() else ""
-        val blogPubDateTime = blogMeta.substringAfter("pubDatetime:").substringBefore("\n").trim()
+        val blogItem = BlogItem.getBlogItem(fileName)
 
         Text(
-            text = blogTitle,
+            text = blogItem.blogName,
             color = Colors.primaryDark,
             fontWeight = FontWeight.Predefined.Bold,
             fontFamily = Constants.Inter,
             fontSize = 24.px
         )
 
-        if (blogDescription.isNotBlank()) {
+        if (blogItem.description.isNotBlank()) {
             Spacer(modifier = Modifier.height(5.px))
             Text(
-                text = blogDescription,
+                text = blogItem.description,
                 color = Colors.secondaryDark,
                 fontWeight = FontWeight.Predefined.Medium,
                 fontFamily = Constants.Inter,
@@ -55,7 +50,7 @@ fun BODY.Blog(fileName: String) {
             }
             Spacer(modifier = Modifier.width(5.px))
             Text(
-                text = blogPubDateTime,
+                text = blogItem.pubDateTime,
                 color = Colors.secondaryDark,
                 fontWeight = FontWeight.Predefined.Normal,
                 fontFamily = Constants.Inter,
@@ -63,7 +58,7 @@ fun BODY.Blog(fileName: String) {
             )
         }
         Spacer(modifier = Modifier.height(25.px))
-        MarkdownParser().mdToHtml(blogFile.readText().substringAfter("pubDatetime").substringAfter("---").trim())
+        MarkdownParser().mdToHtml(blogItem.file.readText().substringAfter("pubDatetime").substringAfter("---").trim())
             .forEach {
                 when (it) {
                     is MarkdownNode.CodeBlock -> {
@@ -128,7 +123,7 @@ fun BODY.Blog(fileName: String) {
                             }
                             Column(modifier = if (it is MarkdownNode.Quote) Modifier.margin(start = 10.px) else Modifier) {
                                 Span(
-                                    onThisElement = {}, modifier = Modifier.margin(5.px)
+                                    onThisElement = {}
                                 ) {
                                     inlineNodes.forEach {
                                         when (it) {
@@ -168,7 +163,7 @@ fun BODY.Blog(fileName: String) {
                                             is InlineNode.Link -> {
                                                 Text(
                                                     text = """
-                         <a style = "color: ${Colors.primaryDark}" href="${it.url}">${it.text}</a>
+                         <a style = "color: ${Colors.primaryDark}" href="${it.url}" target="_blank">${it.text}</a>
                                             """.trimIndent(),
                                                     fontSize = 18.px,
                                                     fontFamily = Constants.Inter,
