@@ -57,6 +57,16 @@ fun BODY.BlogPage(fileName: String) {
                 fontSize = 14.px
             )
         }
+        Spacer(modifier = Modifier.height(10.px))
+        Text(
+            text = """
+                The following rendered output is parsed using a custom parser based on the <a target="_blank" style = "color: ${Colors.primaryDark}" href="https://spec.commonmark.org/0.31.2/#appendix-a-parsing-strategy">CommonMark spec</a>.
+            """.trimIndent(),
+            fontSize = 14.px,
+            fontFamily = Constants.Inter,
+            color = Colors.primaryDark,
+            fontWeight = FontWeight.Predefined.Thin
+        )
         Spacer(modifier = Modifier.height(25.px))
         MarkdownParser().mdToHtml(blogItem.file.readText().substringAfter("pubDatetime").substringAfter("---").trim())
             .forEach {
@@ -123,7 +133,7 @@ fun BODY.BlogPage(fileName: String) {
                             }
                             Column(modifier = if (it is MarkdownNode.Quote) Modifier.margin(start = 10.px) else Modifier) {
                                 Span(
-                                    onThisElement = {}
+                                    onThisElement = {}, modifier = Modifier.margin(top = 2.5.px, bottom = 2.5.px)
                                 ) {
                                     inlineNodes.forEach {
                                         when (it) {

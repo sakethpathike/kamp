@@ -2,7 +2,6 @@ package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
 import kotlinx.html.FlowContent
-import kotlinx.html.id
 import kotlinx.html.onClick
 import sakethh.kamp.blogFileNames
 import sakethh.kamp.domain.model.BlogItem
@@ -30,7 +29,7 @@ fun BODY.BlogList() {
         )
     ) {
         Footer(
-            textSize = 14.px, iconSize = 14.px, enableBorder = false, padding = 0.px
+            fontSize = 14.px, iconSize = 14.px, enableBorder = false, padding = 0.px
         )
     }
 }

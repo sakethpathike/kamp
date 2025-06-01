@@ -11,7 +11,8 @@ fun FlowContent.Footer(
     text: String = """
                     <a style = "color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp">This site</a> is built with <a style = "color: ${Colors.primaryDark}" href= "https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a> and served by <a style = "color: ${Colors.primaryDark}" href="https://ktor.io" target="_blank">Ktor</a>.
                 """.trimIndent(),
-    textSize: String = 16.px,
+    fontSize: String = 16.px,
+    fontWeight: FontWeight = FontWeight.Predefined.SemiBold,
     borderWidth: String = 1.5.px,
     iconSize: String? = null,
     enableBorder: Boolean = true,
@@ -35,10 +36,10 @@ fun FlowContent.Footer(
         Spacer(modifier = Modifier.height(5.px))
         Text(
             text = text,
-            fontSize = textSize,
+            fontSize = fontSize,
             fontFamily = Constants.Inter,
             color = Colors.primaryDark,
-            fontWeight = FontWeight.Predefined.SemiBold
+            fontWeight = fontWeight
         )
     }
     Spacer(modifier = Modifier.height(25.px))
