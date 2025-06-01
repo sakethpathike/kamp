@@ -128,10 +128,17 @@ class MarkdownParser {
                     inlineElements.add(
                         InlineNode.Link(
                             url = string.substring(startIndex = index).substringAfter("](").substringBefore(")"),
-                            text = string.substring(startIndex = index + 1).substringBefore("]")
+                            text = string.substring(startIndex = index + 1).substringBefore("](")
                         )
                     )
-                    skipUntilIndex = string.skipUntil(targetChar = ')', currentIndex = index)
+
+                    string.substring(startIndex = index).also {
+                        skipUntilIndex += it.indexOf("](")
+                    }.substringAfter("](").also {
+                        skipUntilIndex += it.indexOf(")")
+                    }.substringBefore(")")
+
+                    skipUntilIndex += index + 4
                 }
 
                 '*' -> {
