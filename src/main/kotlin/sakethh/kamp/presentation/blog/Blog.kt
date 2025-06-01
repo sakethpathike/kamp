@@ -16,22 +16,8 @@ fun BODY.Blog(fileName: String) {
     Column(
         id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
-        Text(
-            text = "Saketh",
-            fontWeight = FontWeight.Predefined.SemiBold,
-            fontSize = 14.px,
-            fontFamily = Constants.Inter,
-            color = Colors.secondaryContainerDark
-        )
-        Spacer(modifier = Modifier.height(10.px))
-        Span(onThisElement = {}) {
-            InlineCode(
-                code = "Blog.kt",
-                modifier = Modifier.backgroundColor(Colors.primaryDark).borderRadius(4.px).color(Colors.onPrimaryDark)
-                    .custom("padding:2px 4px;").fontFamily(Constants.JetBrainsMono).blockSelection()
-            )
-        }
-        Spacer(modifier = Modifier.height(20.px))
+        Footer(selectedComponent = "blog")
+        Spacer(modifier = Modifier.height(25.px))
 
         val blogFile = object {}.javaClass.getResource("/blog/$fileName.md")!!
         val blogMeta = blogFile.readText().substringAfter("---").substringBefore("---").trim()

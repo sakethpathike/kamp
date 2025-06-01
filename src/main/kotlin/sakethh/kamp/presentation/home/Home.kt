@@ -20,16 +20,12 @@ fun BODY.Home() {
     Column(
         id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
-        Span(onThisElement = {}) {
-            InlineCode(
-                code = "Home.kt",
-                modifier = Modifier.backgroundColor(Colors.primaryDark).borderRadius(4.px).color(Colors.onPrimaryDark)
-                    .custom("padding:2px 4px;").fontFamily(Constants.JetBrainsMono).blockSelection()
-            )
-        }
+        Footer(selectedComponent = "home")
         Spacer(modifier = Modifier.height(25.px))
         Text(
-            text = "Saketh Pathike", fontWeight = FontWeight.Predefined.Black, fontSize = 32.px,
+            text = "Saketh Pathike",
+            fontWeight = FontWeight.Predefined.Black,
+            fontSize = 32.px,
             fontFamily = Constants.Inter,
             color = Colors.primaryDark
         )
@@ -135,7 +131,9 @@ private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
             )
             Spacer(modifier = Modifier.width(5.px))
             Text(
-                text = githubRepoDTO.starCount, fontFamily = Constants.Inter, color = Colors.secondaryDark,
+                text = githubRepoDTO.starCount,
+                fontFamily = Constants.Inter,
+                color = Colors.secondaryDark,
                 fontSize = 14.px
             )
         }
@@ -165,12 +163,12 @@ private fun FlowContent.ContactItem(imageSrc: String, string: String, url: Strin
     Row(
         horizontalAlignment = HorizontalAlignment.Center,
         modifier = Modifier.blockSelection().cursor(Cursor.Pointer).backgroundColor(Colors.primaryContainerDark)
-            .clip(Shape.RoundedRectangle(1.5.px)).color(Colors.onPrimaryContainerDark).padding(6.9.px).width("fit-content"),
+            .clip(Shape.RoundedRectangle(1.5.px)).color(Colors.onPrimaryContainerDark).padding(6.9.px)
+            .width("fit-content"),
         onThisElement = {
             val func = "window.open(\"${url}\", \"_blank\");"
             onMouseDown = func
-        }
-    ) {
+        }) {
         if (imageSrc.startsWith("/")) {
             Image(src = imageSrc, modifier = Modifier.size(20.px))
         } else {
@@ -190,37 +188,37 @@ fun getPinnedRepos(): List<GithubRepoDTO> = runBlocking {
         HttpRequest.newBuilder().GET().uri(URI.create("https://github.com/sakethpathike")).build(),
         HttpResponse.BodyHandlers.ofString()
     ).body().toString().let {
-            it.substringAfter("<div class=\"js-pinned-items-reorder-container\">").substringAfter("<ol")
-                .substringBefore("</ol>").split("<li").drop(1).forEach {
-                    val pinnedItem =
-                        it.substringAfter("<div class=\"pinned-item-list-item-content\">").substringAfter("</a>")
+        it.substringAfter("<div class=\"js-pinned-items-reorder-container\">").substringAfter("<ol")
+            .substringBefore("</ol>").split("<li").drop(1).forEach {
+                val pinnedItem =
+                    it.substringAfter("<div class=\"pinned-item-list-item-content\">").substringAfter("</a>")
 
-                    val name = pinnedItem.substringAfter("<div class=\"d-flex width-full position-relative\">")
-                        .substringBefore("<p class=\"pinned-item-desc").substringAfter("<tool-tip")
-                        .substringAfter("\">").substringBefore("</tool-tip>").trim()
+                val name = pinnedItem.substringAfter("<div class=\"d-flex width-full position-relative\">")
+                    .substringBefore("<p class=\"pinned-item-desc").substringAfter("<tool-tip").substringAfter("\">")
+                    .substringBefore("</tool-tip>").trim()
 
-                    val description = pinnedItem.substringAfter("<p class=\"pinned-item-desc").substringAfter("\">")
-                        .substringBefore("</p>").trim()
+                val description = pinnedItem.substringAfter("<p class=\"pinned-item-desc").substringAfter("\">")
+                    .substringBefore("</p>").trim()
 
-                    val starCount = pinnedItem.substringAfter("<svg aria-label=\"stars\"").substringAfter("</svg>")
-                        .substringBefore("</a>").trim()
+                val starCount = pinnedItem.substringAfter("<svg aria-label=\"stars\"").substringAfter("</svg>")
+                    .substringBefore("</a>").trim()
 
-                    val programmingLanguage =
-                        pinnedItem.substringAfter("<span itemprop=\"programmingLanguage\">").substringBefore("</span>")
-                            .trim()
-                    pinnedRepos.add(
-                        GithubRepoDTO(
-                            name = name,
-                            description = description,
-                            starCount = starCount,
-                            programmingLanguage = programmingLanguage,
-                            tags = tags.find {
-                                it.repoName == name
-                            }?.tags ?: emptyList()
-                        )
+                val programmingLanguage =
+                    pinnedItem.substringAfter("<span itemprop=\"programmingLanguage\">").substringBefore("</span>")
+                        .trim()
+                pinnedRepos.add(
+                    GithubRepoDTO(
+                        name = name,
+                        description = description,
+                        starCount = starCount,
+                        programmingLanguage = programmingLanguage,
+                        tags = tags.find {
+                            it.repoName == name
+                        }?.tags ?: emptyList()
                     )
-                }
-        }
+                )
+            }
+    }
     pinnedRepos.toList()
 }
 
