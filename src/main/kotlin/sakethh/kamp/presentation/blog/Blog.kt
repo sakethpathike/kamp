@@ -117,83 +117,78 @@ fun BODY.Blog(fileName: String) {
                             is MarkdownNode.Quote -> it.inlineNodes
                             else -> error("It SHOULD NOT be here")
                         }
-                        Box {
+                        Box(modifier = Modifier.position(Position.Relative)) {
                             if (it is MarkdownNode.Quote) {
-                                Spacer(
-                                    modifier = Modifier.fillMaxHeight().fillMaxWidth()
-                                        .backgroundColor(Colors.primaryDark).custom("position: relative; z-index: -1;")
-                                )
-                            }
-                            Row(
-                                horizontalAlignment = HorizontalAlignment.Center,
-                            ) {
-                                if (it is MarkdownNode.Quote) {
+                                Column(
+                                    verticalAlignment = VerticalAlignment.Center,
+                                    modifier = Modifier.fillMaxSize().backgroundColor(Colors.codeblockBG)
+                                        .position(Position.Absolute).zIndex(-1).custom("top: 0; left: 0;")
+                                ) {
                                     Spacer(
-                                        modifier = Modifier.margin(start = 2.5.px, end = 5.px).height(25.px)
-                                            .clip(Shape.RoundedRectangle(cornerRadius = 5.px)).width(2.px)
-                                            .backgroundColor(Colors.primaryContainerDark)
+                                        modifier = Modifier.margin(start = 5.px).fillMaxHeight(0.8).width(4.px)
+                                            .clip(Shape.RoundedRectangle(cornerRadius = 5.px))
+                                            .backgroundColor(Colors.primaryDark)
                                     )
                                 }
-                                Column {
-                                    Span(
-                                        onThisElement = {}, modifier = Modifier.margin(5.px)
-                                    ) {
-                                        inlineNodes.forEach {
-                                            when (it) {
-                                                is InlineNode.CodeSpan -> {
-                                                    Text(
-                                                        text = it.code,
-                                                        modifier = Modifier.backgroundColor(Colors.onPrimaryDark)
-                                                            .borderRadius(4.px).color(Colors.primaryDark)
-                                                            .custom("padding:2px 4px;")
-                                                            .fontFamily(Constants.JetBrainsMono)
-                                                    )
-                                                }
+                            }
+                            Column(modifier = if (it is MarkdownNode.Quote) Modifier.margin(start = 10.px) else Modifier) {
+                                Span(
+                                    onThisElement = {}, modifier = Modifier.margin(5.px)
+                                ) {
+                                    inlineNodes.forEach {
+                                        when (it) {
+                                            is InlineNode.CodeSpan -> {
+                                                Text(
+                                                    text = it.code,
+                                                    modifier = Modifier.backgroundColor(Colors.onPrimaryDark)
+                                                        .borderRadius(4.px).color(Colors.primaryDark)
+                                                        .custom("padding:2px 4px;").fontFamily(Constants.JetBrainsMono)
+                                                )
+                                            }
 
-                                                is InlineNode.Emphasis -> {
-                                                    Text(
-                                                        text = it.text.run {
-                                                            if (it.type == EmphasisType.BoldItalic || it.type == EmphasisType.Italic) {
-                                                                "<i>${it.text}</i>"
-                                                            } else if (it.type == EmphasisType.StrikeThrough) {
-                                                                "<del>${it.text}</del>"
-                                                            } else {
-                                                                this
-                                                            }
-                                                        },
-                                                        fontSize = 18.px,
-                                                        color = Colors.onSurfaceDark,
-                                                        fontFamily = Constants.Inter,
-                                                        fontWeight = when (it.type) {
-                                                            EmphasisType.StrikeThrough, EmphasisType.Italic -> FontWeight.Predefined.Normal
-                                                            EmphasisType.BoldItalic, EmphasisType.Bold -> FontWeight.Predefined.Bold
-                                                        },
-                                                        modifier = Modifier.width("fit-content").display(Display.Inline)
-                                                    )
-                                                }
+                                            is InlineNode.Emphasis -> {
+                                                Text(
+                                                    text = it.text.run {
+                                                        if (it.type == EmphasisType.BoldItalic || it.type == EmphasisType.Italic) {
+                                                            "<i>${it.text}</i>"
+                                                        } else if (it.type == EmphasisType.StrikeThrough) {
+                                                            "<del>${it.text}</del>"
+                                                        } else {
+                                                            this
+                                                        }
+                                                    },
+                                                    fontSize = 18.px,
+                                                    color = Colors.onSurfaceDark,
+                                                    fontFamily = Constants.Inter,
+                                                    fontWeight = when (it.type) {
+                                                        EmphasisType.StrikeThrough, EmphasisType.Italic -> FontWeight.Predefined.Normal
+                                                        EmphasisType.BoldItalic, EmphasisType.Bold -> FontWeight.Predefined.Bold
+                                                    },
+                                                    modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                )
+                                            }
 
-                                                is InlineNode.Link -> {
-                                                    Text(
-                                                        text = """
+                                            is InlineNode.Link -> {
+                                                Text(
+                                                    text = """
                          <a style = "color: ${Colors.primaryDark}" href="${it.url}">${it.text}</a>
                                             """.trimIndent(),
-                                                        fontSize = 18.px,
-                                                        fontFamily = Constants.Inter,
-                                                        fontWeight = FontWeight.Predefined.Medium,
-                                                        modifier = Modifier.width("fit-content").display(Display.Inline)
-                                                    )
-                                                }
+                                                    fontSize = 18.px,
+                                                    fontFamily = Constants.Inter,
+                                                    fontWeight = FontWeight.Predefined.Medium,
+                                                    modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                )
+                                            }
 
-                                                is InlineNode.PlainText -> {
-                                                    Text(
-                                                        text = it.text,
-                                                        fontSize = 18.px,
-                                                        color = Colors.onSurfaceDark,
-                                                        fontFamily = Constants.Inter,
-                                                        fontWeight = FontWeight.Predefined.Normal,
-                                                        modifier = Modifier.width("fit-content").display(Display.Inline)
-                                                    )
-                                                }
+                                            is InlineNode.PlainText -> {
+                                                Text(
+                                                    text = it.text,
+                                                    fontSize = 18.px,
+                                                    color = Colors.onSurfaceDark,
+                                                    fontFamily = Constants.Inter,
+                                                    fontWeight = FontWeight.Predefined.Normal,
+                                                    modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                )
                                             }
                                         }
                                     }
