@@ -55,7 +55,7 @@ class MarkdownParser {
                     )
                 )
 
-                leadingSpaceExists && (trimmedLineContent.startsWith("- ") || trimmedLineContent.startsWith("* ") || trimmedLineContent.startsWith(
+                leadingSpaceExists && (trimmedLineContent.startsWith("- ") || trimmedLineContent.startsWith(
                     "+ "
                 ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLineContent)) -> nodes.add(
                     MarkdownNode.ListItem(

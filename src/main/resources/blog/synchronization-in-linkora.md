@@ -53,7 +53,7 @@ In this case, we only need to consider:
    save what's supposed to be pushed so that whenever the server and app are up, the app can send those changes. This
    also makes it local-first, as irrespective of server changes, it will always update locally.
 
-Now, the first thing is to **try saving locally and then pushing the changes**. There are many operations where we need
+Now, the first thing is to *try saving locally and then pushing the changes*. There are many operations where we need
 to push changes to the server, so I made a generic function that works for all these cases where we need to perform
 local operations and then push to the remote server:
 
@@ -95,8 +95,7 @@ It may seem like a lot is happening, but it's not. What this does is:
 
 1. Perform local operation.
 2. Try to push changes. If successful, the operation is successful.
-3. If pushing fails, `onRemoteOperationFailure()` will be triggered if the sync type is set to `Client-to-Server` or
-   `Two-Way Sync`.
+3. If pushing fails, `onRemoteOperationFailure()` will be triggered if the sync type is set to `Client-to-Server` or `Two-Way Sync`.
 
 Now we need to figure out how to save the operations locally when there's a failure on the remote server (mostly because
 the server is down), so once the server is up, Linkora App can send those operations.
@@ -132,7 +131,7 @@ onRemoteOperationFailure = {
 }
 ```
 
-Where **every** DTO contains `correlation`. Here, the `IDBasedDTO` looks like:
+Where *every* DTO contains `correlation`. Here, the `IDBasedDTO` looks like:
 
 ```kotlin
 @Serializable
@@ -245,8 +244,8 @@ sent from the server (since server operations happen there).
 
 Changes can be read in two ways:
 
-1. **Using sockets** if both app and server are online.
-2. **Custom implementations** if the client is offline or disconnected from the server.
+1. *Using sockets* if both app and server are online.
+2. *Custom implementations* if the client is offline or disconnected from the server.
 
 #### 1. Using sockets if both app and server are online
 
@@ -287,7 +286,7 @@ We need to handle two scenarios if the client is offline or disconnected from th
 1. Handling deletions.
 2. Updating data after the last known `TIME_STAMP`.
 
-##### 2.1 Handling deletions when offline
+#### 2.1 Handling deletions when offline
 
 We track deleted items using a server-side `Tombstone` table structured as:
 
@@ -317,7 +316,7 @@ transaction {
 And now on the client side, when both the app and server are online, we pull these tombstone records and delete the
 corresponding items locally.
 
-##### 2.2 Updating data after the last known `TIME_STAMP`
+#### 2.2 Updating data after the last known `TIME_STAMP`
 
 As mentioned earlier, the local database in the app contains a column called `lastModified`. Similarly, tables in the
 remote database also include this column. The app sends its last known `TIME_STAMP` to the server, which returns all
