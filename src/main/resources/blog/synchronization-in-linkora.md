@@ -95,7 +95,8 @@ It may seem like a lot is happening, but it's not. What this does is:
 
 1. Perform local operation.
 2. Try to push changes. If successful, the operation is successful.
-3. If pushing fails, `onRemoteOperationFailure()` will be triggered if the sync type is set to `Client-to-Server` or `Two-Way Sync`.
+3. If pushing fails, `onRemoteOperationFailure()` will be triggered if the sync type is set to `Client-to-Server` or
+   `Two-Way Sync`.
 
 Now we need to figure out how to save the operations locally when there's a failure on the remote server (mostly because
 the server is down), so once the server is up, Linkora App can send those operations.
@@ -286,7 +287,7 @@ We need to handle two scenarios if the client is offline or disconnected from th
 1. Handling deletions.
 2. Updating data after the last known `TIME_STAMP`.
 
-#### 2.1 Handling deletions when offline
+##### 2.1 Handling deletions when offline
 
 We track deleted items using a server-side `Tombstone` table structured as:
 
@@ -316,7 +317,7 @@ transaction {
 And now on the client side, when both the app and server are online, we pull these tombstone records and delete the
 corresponding items locally.
 
-#### 2.2 Updating data after the last known `TIME_STAMP`
+##### 2.2 Updating data after the last known `TIME_STAMP`
 
 As mentioned earlier, the local database in the app contains a column called `lastModified`. Similarly, tables in the
 remote database also include this column. The app sends its last known `TIME_STAMP` to the server, which returns all
