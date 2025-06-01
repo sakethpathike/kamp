@@ -2,6 +2,7 @@ package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
 import kotlinx.html.FlowContent
+import kotlinx.html.id
 import kotlinx.html.onClick
 import sakethh.kamp.blogFileNames
 import sakethh.kamp.domain.model.BlogItem
@@ -10,12 +11,7 @@ import sakethh.kamp.presentation.common.Header
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kapsule.*
-import sakethh.kapsule.utils.Cursor
-import sakethh.kapsule.utils.FontWeight
-import sakethh.kapsule.utils.HorizontalAlignment
-import sakethh.kapsule.utils.VerticalAlignment
-import sakethh.kapsule.utils.px
-import sakethh.kapsule.utils.vh
+import sakethh.kapsule.utils.*
 
 fun BODY.BlogList() {
     Column(
@@ -26,6 +22,13 @@ fun BODY.BlogList() {
         blogFileNames.forEach {
             BlogItem(BlogItem.getBlogItem(it))
         }
+    }
+    Div(
+        id = "footerOnBlogLists",
+        modifier = Modifier.padding(50.px).position(Position.Fixed).fillMaxWidth(0.7).custom(
+            "bottom: 0; left: 0;"
+        )
+    ) {
         Footer(
             textSize = 14.px, iconSize = 14.px, enableBorder = false, padding = 0.px
         )

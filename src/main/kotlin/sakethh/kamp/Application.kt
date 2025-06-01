@@ -71,12 +71,15 @@ fun Application.module() {
                                     +"""
       document.addEventListener("DOMContentLoaded", () => {
         const current_page = document.getElementById("current_page");
+        const footerOnBlogLists = document.getElementById("footerOnBlogLists");
         const isMobile = window.matchMedia("(max-width: 767px)").matches;
         
         if(isMobile){
             current_page.style.boxSizing = "border-box";
             current_page.style.padding = "15px";
             current_page.style.width = "100%";
+            footerOnBlogLists.style.padding = "15px";
+            footerOnBlogLists.style.width = "100%";
         } else {            
             current_page.style.transform = "scale(1.2)";
             current_page.style.transformOrigin = "top left";
