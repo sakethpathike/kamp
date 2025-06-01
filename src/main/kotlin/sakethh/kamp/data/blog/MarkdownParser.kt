@@ -1,5 +1,6 @@
 package sakethh.kamp.data.blog
 
+import sakethh.kamp.domain.model.markdown.EmphasisType
 import sakethh.kamp.domain.model.markdown.InlineNode
 import sakethh.kamp.domain.model.markdown.MarkdownNode
 
@@ -35,7 +36,7 @@ class MarkdownParser {
 
                 trimmedLineContent.startsWith(">") -> nodes.add(
                     MarkdownNode.Quote(
-                        text = currentLineContent.substringAfter(">").trim()
+                        inlineNodes = processInlineElements(currentLineContent.substringAfter(">").trim())
                     )
                 )
 
@@ -56,7 +57,11 @@ class MarkdownParser {
 
                 leadingSpaceExists && (trimmedLineContent.startsWith("- ") || trimmedLineContent.startsWith("* ") || trimmedLineContent.startsWith(
                     "+ "
-                ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLineContent)) -> nodes.add(MarkdownNode.ListItem(text = currentLineContent))
+                ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLineContent)) -> nodes.add(
+                    MarkdownNode.ListItem(
+                        inlineNodes = processInlineElements(currentLineContent)
+                    )
+                )
 
 
                 trimmedLineContent.startsWith("---") || trimmedLineContent.startsWith("___") || trimmedLineContent.startsWith(
@@ -68,12 +73,6 @@ class MarkdownParser {
                 Regex("^#{1,6}\\s").containsMatchIn(trimmedLineContent) -> nodes.add(MarkdownNode.Heading(level = trimmedLineContent.takeWhile {
                     it == '#'
                 }.length.coerceAtMost(6), text = trimmedLineContent.substringAfter(" ").trim()))
-
-                Regex("^\\[[^]]+]:\\s*\\S+\\s*$").containsMatchIn(trimmedLineContent) -> nodes.add(
-                    MarkdownNode.Link(
-                        currentLineContent
-                    )
-                )
 
                 trimmedLineContent.startsWith("![") -> nodes.add(
                     MarkdownNode.Image(
@@ -106,7 +105,7 @@ class MarkdownParser {
         val inlineElements = mutableListOf<InlineNode>()
         var skipUntilIndex: Int = -1
         val tempPlainText = StringBuilder()
-        val fences = listOf('*', '_', '`','[',']','(',')')
+        val fences = listOf('*', '_', '`', '[', ']', '(', ')', '~')
         string.forEachIndexed { index, currentChar ->
             if (index < skipUntilIndex) return@forEachIndexed
 
@@ -135,7 +134,66 @@ class MarkdownParser {
                     skipUntilIndex = string.skipUntil(targetChar = ')', currentIndex = index)
                 }
 
-                else -> tempPlainText.append(currentChar)
+                '*' -> {
+                    if (string[index + 1] == '*') {
+                        tempPlainText.append("**")
+                        skipUntilIndex = index + 2
+                        return@forEachIndexed
+                    }
+                    // BOLD
+                    if (string[index + 1] !in fences) {
+                        inlineElements.add(
+                            InlineNode.Emphasis(
+                                type = EmphasisType.Bold,
+                                text = string.substring(startIndex = index + 1).substringBefore("*")
+                            )
+                        )
+                        skipUntilIndex = string.skipUntil(targetChar = '*', currentIndex = index)
+                    }
+
+                    // BOLD_ITALIC
+                    if (string[index + 1] == '_') {
+                        inlineElements.add(
+                            InlineNode.Emphasis(
+                                type = EmphasisType.BoldItalic,
+                                text = string.substring(startIndex = index + 2).substringBefore("_*")
+                            )
+                        )
+                        skipUntilIndex = string.skipUntil(targetChar = '*', currentIndex = index)
+                    }
+                }
+
+                '_' -> {
+                    if (string[index + 1] == '*') {
+                        tempPlainText.append("_*")
+                        skipUntilIndex = index + 2
+                        return@forEachIndexed
+                    }
+                    inlineElements.add(
+                        InlineNode.Emphasis(
+                            type = EmphasisType.Italic,
+                            text = string.substring(startIndex = index + 1).substringBefore("_")
+                        )
+                    )
+                    skipUntilIndex = string.skipUntil(targetChar = '_', currentIndex = index)
+                }
+
+                else -> {
+                    if (currentChar == '~' && string[index + 1] == '~') {
+                        inlineElements.add(
+                            InlineNode.Emphasis(
+                                type = EmphasisType.StrikeThrough,
+                                text = string.substring(startIndex = index + 2).substringBefore("~")
+                            )
+                        )
+                        skipUntilIndex = string.substring(startIndex = index + 2).indexOfFirst {
+                            it == '~'
+                        } + 4 + index
+
+                        return@forEachIndexed
+                    }
+                    tempPlainText.append(currentChar)
+                }
             }
         }
         inlineElements.add(InlineNode.PlainText(tempPlainText.toString()))

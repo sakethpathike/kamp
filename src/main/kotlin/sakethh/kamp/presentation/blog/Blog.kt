@@ -2,6 +2,7 @@ package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
 import sakethh.kamp.data.blog.MarkdownParser
+import sakethh.kamp.domain.model.markdown.EmphasisType
 import sakethh.kamp.domain.model.markdown.InlineNode
 import sakethh.kamp.domain.model.markdown.MarkdownNode
 import sakethh.kamp.presentation.common.Footer
@@ -109,77 +110,92 @@ fun BODY.Blog(fileName: String) {
                         )
                     }
 
-                    is MarkdownNode.Link -> {
-                        Text(
-                            text = "<this is link>${it.text}<this is link>",
-                            fontWeight = FontWeight.Predefined.Normal,
-                            color = Colors.onSurfaceDark,
-                            fontSize = 20.px
-                        )
-                    }
-
-                    is MarkdownNode.ListItem -> {
-                        Text(
-                            text = it.text.run {
-                                if (this.startsWith("-")) {
-                                    Typography.bullet + this.substring(startIndex = 1)
-                                } else {
-                                    this
+                    is MarkdownNode.Quote, is MarkdownNode.ListItem, is MarkdownNode.Paragraph -> {
+                        val inlineNodes = when (it) {
+                            is MarkdownNode.ListItem -> it.inlineNodes
+                            is MarkdownNode.Paragraph -> it.inlineNodes
+                            is MarkdownNode.Quote -> it.inlineNodes
+                            else -> error("It SHOULD NOT be here")
+                        }
+                        Box {
+                            if (it is MarkdownNode.Quote) {
+                                Spacer(
+                                    modifier = Modifier.fillMaxHeight().fillMaxWidth()
+                                        .backgroundColor(Colors.primaryDark).custom("position: relative; z-index: -1;")
+                                )
+                            }
+                            Row(
+                                horizontalAlignment = HorizontalAlignment.Center,
+                            ) {
+                                if (it is MarkdownNode.Quote) {
+                                    Spacer(
+                                        modifier = Modifier.margin(start = 2.5.px, end = 5.px).height(25.px)
+                                            .clip(Shape.RoundedRectangle(cornerRadius = 5.px)).width(2.px)
+                                            .backgroundColor(Colors.primaryContainerDark)
+                                    )
                                 }
-                            },
-                            fontWeight = FontWeight.Predefined.Normal,
-                            color = Colors.onSurfaceDark,
-                            fontSize = 18.px,
-                            fontFamily = Constants.Inter,
-                            modifier = Modifier.margin(top = 5.px, start = 5.px, end = 5.px)
-                        )
-                    }
+                                Column {
+                                    Span(
+                                        onThisElement = {}, modifier = Modifier.margin(5.px)
+                                    ) {
+                                        inlineNodes.forEach {
+                                            when (it) {
+                                                is InlineNode.CodeSpan -> {
+                                                    Text(
+                                                        text = it.code,
+                                                        modifier = Modifier.backgroundColor(Colors.onPrimaryDark)
+                                                            .borderRadius(4.px).color(Colors.primaryDark)
+                                                            .custom("padding:2px 4px;")
+                                                            .fontFamily(Constants.JetBrainsMono)
+                                                    )
+                                                }
 
-                    is MarkdownNode.Quote -> {
-                        Text(
-                            text = "<i>${it.text}</i>",
-                            fontWeight = FontWeight.Predefined.Black,
-                            color = Colors.tertiaryDark,
-                            fontSize = 18.px
-                        )
-                    }
+                                                is InlineNode.Emphasis -> {
+                                                    Text(
+                                                        text = it.text.run {
+                                                            if (it.type == EmphasisType.BoldItalic || it.type == EmphasisType.Italic) {
+                                                                "<i>${it.text}</i>"
+                                                            } else if (it.type == EmphasisType.StrikeThrough) {
+                                                                "<del>${it.text}</del>"
+                                                            } else {
+                                                                this
+                                                            }
+                                                        },
+                                                        fontSize = 18.px,
+                                                        color = Colors.onSurfaceDark,
+                                                        fontFamily = Constants.Inter,
+                                                        fontWeight = when (it.type) {
+                                                            EmphasisType.StrikeThrough, EmphasisType.Italic -> FontWeight.Predefined.Normal
+                                                            EmphasisType.BoldItalic, EmphasisType.Bold -> FontWeight.Predefined.Bold
+                                                        },
+                                                        modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                    )
+                                                }
 
-                    is MarkdownNode.Paragraph -> {
-                        Span(onThisElement = {}) {
-                            it.inlineNodes.forEach {
-                                when (it) {
-                                    is InlineNode.CodeSpan -> {
-                                        Text(
-                                            text = it.code,
-                                            fontSize = 16.5.px,
-                                            color = Colors.primaryDark,
-                                            fontFamily = Constants.JetBrainsMono,
-                                            fontWeight = FontWeight.Predefined.Bolder,
-                                        )
-                                    }
-
-                                    is InlineNode.Emphasis -> TODO()
-                                    is InlineNode.Link -> {
-                                        Text(
-                                            text = """
+                                                is InlineNode.Link -> {
+                                                    Text(
+                                                        text = """
                          <a style = "color: ${Colors.primaryDark}" href="${it.url}">${it.text}</a>
                                             """.trimIndent(),
-                                            fontSize = 18.px,
-                                            fontFamily = Constants.Inter,
-                                            fontWeight = FontWeight.Predefined.Medium,
-                                            modifier = Modifier.width("fit-content").display(Display.Inline)
-                                        )
-                                    }
+                                                        fontSize = 18.px,
+                                                        fontFamily = Constants.Inter,
+                                                        fontWeight = FontWeight.Predefined.Medium,
+                                                        modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                    )
+                                                }
 
-                                    is InlineNode.PlainText -> {
-                                        Text(
-                                            text = it.text,
-                                            fontSize = 18.px,
-                                            color = Colors.onSurfaceDark,
-                                            fontFamily = Constants.Inter,
-                                            fontWeight = FontWeight.Predefined.Normal,
-                                            modifier = Modifier.width("fit-content").display(Display.Inline)
-                                        )
+                                                is InlineNode.PlainText -> {
+                                                    Text(
+                                                        text = it.text,
+                                                        fontSize = 18.px,
+                                                        color = Colors.onSurfaceDark,
+                                                        fontFamily = Constants.Inter,
+                                                        fontWeight = FontWeight.Predefined.Normal,
+                                                        modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
