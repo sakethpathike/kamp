@@ -97,10 +97,18 @@ fun BODY.Blog(fileName: String) {
                         }
                     }
 
-                    MarkdownNode.Divider -> Spacer(
-                        modifier = Modifier.border(radius = 5.px, color = Colors.outlineDark, width = 1.25.px)
-                            .backgroundColor(Colors.outlineDark).margin(top = 15.px, bottom = 15.px)
-                    )
+                    MarkdownNode.Divider -> {
+                        Row(
+                            verticalAlignment = VerticalAlignment.Center,
+                            horizontalAlignment = HorizontalAlignment.Center
+                        ) {
+                            Spacer(
+                                modifier = Modifier.fillMaxWidth(0.98)
+                                    .border(radius = 5.px, color = Colors.outlineDark, width = 1.15.px)
+                                    .backgroundColor(Colors.outlineDark).margin(top = 10.px, bottom = 3.5.px)
+                            )
+                        }
+                    }
 
                     is MarkdownNode.Heading -> {
                         Heading(
@@ -111,6 +119,7 @@ fun BODY.Blog(fileName: String) {
                     }
 
                     is MarkdownNode.Quote, is MarkdownNode.ListItem, is MarkdownNode.Paragraph -> {
+                        val currentMarkdownNode = it
                         val inlineNodes = when (it) {
                             is MarkdownNode.ListItem -> it.inlineNodes
                             is MarkdownNode.Paragraph -> it.inlineNodes
@@ -139,10 +148,12 @@ fun BODY.Blog(fileName: String) {
                                         when (it) {
                                             is InlineNode.CodeSpan -> {
                                                 Text(
-                                                    text = it.code,
+                                                    text = it.code.trim(),
                                                     modifier = Modifier.backgroundColor(Colors.onPrimaryDark)
                                                         .borderRadius(4.px).color(Colors.primaryDark)
                                                         .custom("padding:2px 4px;").fontFamily(Constants.JetBrainsMono)
+                                                        .width("fit-content").display(Display.Inline),
+                                                    fontSize = 15.px
                                                 )
                                             }
 
@@ -156,7 +167,7 @@ fun BODY.Blog(fileName: String) {
                                                         } else {
                                                             this
                                                         }
-                                                    },
+                                                    }.trim(),
                                                     fontSize = 18.px,
                                                     color = Colors.onSurfaceDark,
                                                     fontFamily = Constants.Inter,
@@ -175,19 +186,29 @@ fun BODY.Blog(fileName: String) {
                                             """.trimIndent(),
                                                     fontSize = 18.px,
                                                     fontFamily = Constants.Inter,
-                                                    fontWeight = FontWeight.Predefined.Medium,
+                                                    fontWeight = FontWeight.Predefined.SemiBold,
                                                     modifier = Modifier.width("fit-content").display(Display.Inline)
                                                 )
                                             }
 
                                             is InlineNode.PlainText -> {
                                                 Text(
-                                                    text = it.text,
+                                                    text = it.text.trim().run {
+                                                        if (currentMarkdownNode is MarkdownNode.ListItem && this.startsWith(
+                                                                "-"
+                                                            )
+                                                        ) {
+                                                            Typography.bullet + " " + this.substring(1)
+                                                        } else {
+                                                            this
+                                                        }
+                                                    },
                                                     fontSize = 18.px,
                                                     color = Colors.onSurfaceDark,
                                                     fontFamily = Constants.Inter,
                                                     fontWeight = FontWeight.Predefined.Normal,
                                                     modifier = Modifier.width("fit-content").display(Display.Inline)
+                                                        .custom("line-height: 1.5")
                                                 )
                                             }
                                         }
