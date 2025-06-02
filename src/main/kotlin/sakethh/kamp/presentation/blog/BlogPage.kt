@@ -170,7 +170,7 @@ fun BODY.BlogPage(fileName: String) {
                             }
                             Column(modifier = if (it is MarkdownNode.Quote) Modifier.margin(start = 10.px) else Modifier) {
                                 Span(
-                                    onThisElement = {}, modifier = Modifier.margin(top = 2.5.px, bottom = 2.5.px)
+                                    onThisElement = {}, modifier = Modifier.margin(top = 2.5.px, bottom = 2.5.px).fontSize(0.px)
                                 ) {
                                     inlineNodes.forEach {
                                         when (it) {
