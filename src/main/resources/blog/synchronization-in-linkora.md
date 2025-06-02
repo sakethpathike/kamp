@@ -1,6 +1,6 @@
 ---
 title: Synchronization in Linkora
-pubDatetime: Saturday 31-05-2025 12:52 PM IST 
+pubDatetime: Feb 16, 2025 01:05 PM IST 
 ---
 
 [Linkora App](https://github.com/LinkoraApp/Linkora) uses multiple _techniques_ to make sure the data is synced with the
@@ -51,27 +51,27 @@ In this case, we only need to consider:
 1. Pushing `CREATE`-`UPDATE`-`DELETE` operations that happen locally.  
    That's all we care about. But there may be cases when the `sync-server` might not be up. In that case, we need to
    save what's supposed to be pushed so that whenever the server and app are up, the app can send those changes. This
-   also makes it local-first, as irrespective of server changes, it will always update locally.
+   also makes it local-first, as irrespective of server changes; it will always update locally.
 
 Now, the first thing is to *try saving locally and then pushing the changes*. There are many operations where we need
 to push changes to the server, so I made a generic function that works for all these cases where we need to perform
 local operations and then push to the remote server:
 
 ```kotlin
-fun <LocalType, RemoteType> performLocalOperationWithRemoteSyncFlow(
+fun &lt;LocalType, RemoteType&gt; performLocalOperationWithRemoteSyncFlow(
    performRemoteOperation: Boolean,
-   remoteOperation: suspend () -> Flow<Result<RemoteType>> = { emptyFlow() },
-   remoteOperationOnSuccess: suspend (RemoteType) -> Unit = {},
-   onRemoteOperationFailure: suspend () -> Unit = {},
-   localOperation: suspend () -> LocalType
-): Flow<Result<LocalType>> {
+   remoteOperation: suspend () -&gt; Flow&lt;Result&lt;RemoteType>> = { emptyFlow() },
+   remoteOperationOnSuccess: suspend (RemoteType) -&gt; Unit = {},
+   onRemoteOperationFailure: suspend () -&gt; Unit = {},
+   localOperation: suspend () -&gt; LocalType
+): Flow&lt;Result&lt;LocalType>> {
    return flow {
       emit(Result.Loading())
       val localResult = localOperation()
-      Result.Success(localResult).let { success ->
+      Result.Success(localResult).let { success -&gt;
          if (performRemoteOperation && canPushToServer()) {
-            remoteOperation().collect { remoteResult ->
-               remoteResult.onFailure { failureMessage ->
+            remoteOperation().collect { remoteResult -&gt;
+               remoteResult.onFailure { failureMessage -&gt;
                   success.isRemoteExecutionSuccessful = false
                   success.remoteFailureMessage = failureMessage
                   onRemoteOperationFailure()
@@ -95,8 +95,7 @@ It may seem like a lot is happening, but it's not. What this does is:
 
 1. Perform local operation.
 2. Try to push changes. If successful, the operation is successful.
-3. If pushing fails, `onRemoteOperationFailure()` will be triggered if the sync type is set to `Client-to-Server` or
-   `Two-Way Sync`.
+3. If pushing fails, `onRemoteOperationFailure()` will be triggered if the sync type is set to `Client-to-Server` or `Two-Way Sync`.
 
 Now we need to figure out how to save the operations locally when there's a failure on the remote server (mostly because
 the server is down), so once the server is up, Linkora App can send those operations.
@@ -157,15 +156,15 @@ considered earlier, here's how it will be sent:
 
 ```kotlin
 when (queue.operation) {
-   ARCHIVE_LINK.name -> {
-      val idBasedDTO = Json.decodeFromString<IDBasedDTO>(queueItem.payload)
+   ARCHIVE_LINK.name -&gt; {
+      val idBasedDTO = Json.decodeFromString&lt;IDBasedDTO&gt;(queueItem.payload)
       val remoteLinkId = localLinksRepo.getRemoteLinkId(idBasedDTO.id)
       remoteLinksRepo.archiveALink(idBasedDTO.copy(id = remoteLinkId))
          .removeQueueItemAndSyncTimestamp(queueItem.id)
    }
 }
 
-private suspend inline fun Flow<Result<TimeStampBasedResponse>>.removeQueueItemAndSyncTimestamp(
+private suspend inline fun Flow&lt;Result&lt;TimeStampBasedResponse>>.removeQueueItemAndSyncTimestamp(
    queueId: Long
 ) {
    this.collectLatest {
@@ -188,6 +187,7 @@ anything about it).
 
 In conclusion, the following image should give you a clear idea of how all these components work together to ensure
 `Client-to-Server` sync works as expected:
+
 ![client to server in linkora](https://i.ibb.co/ycHSTyxK/client-to-server.png)
 
 Now on the server-side, LWW (Last Write Wins) is implemented for some routes where updating is required. This makes sure
@@ -200,14 +200,14 @@ private fun checkForLWWConflictAndThrow(id: Long, timeStamp: Long) {
       FoldersTable.select(FoldersTable.lastModified).where {
          FoldersTable.id.eq(id)
       }.let {
-         if (it.single()[FoldersTable.lastModified] > timeStamp) {
+         if (it.single()[FoldersTable.lastModified] &gt; timeStamp) {
             throw LWWConflictException()
          }
       }
    }
 }
 ---
-override suspend fun markAsArchive(idBasedDTO: IDBasedDTO): Result<TimeStampBasedResponse> {
+override suspend fun markAsArchive(idBasedDTO: IDBasedDTO): Result&lt;TimeStampBasedResponse&gt; {
    return try {
       checkForLWWConflictAndThrow(id = idBasedDTO.id, timeStamp = idBasedDTO.eventTimestamp)
       // further impl
@@ -248,7 +248,7 @@ Changes can be read in two ways:
 1. *Using sockets* if both app and server are online.
 2. *Custom implementations* if the client is offline or disconnected from the server.
 
-#### 1. Using sockets if both app and server are online
+### 1. Using sockets if both app and server are online
 
 When both app and server are online, it’s simple: use sockets and update as required. Linkora App handles this as
 follows:
@@ -258,8 +258,8 @@ private suspend fun updateLocalDBAccordingToEvent(
    deserializedWebSocketEvent: WebSocketEvent
 ) {
    when (deserializedWebSocketEvent.operation) {
-      MARK_FOLDER_AS_ARCHIVE.name -> {
-         val idBasedDTO = json.decodeFromJsonElement<IDBasedDTO>(
+      MARK_FOLDER_AS_ARCHIVE.name -&gt; {
+         val idBasedDTO = json.decodeFromJsonElement&lt;IDBasedDTO&gt;(
             deserializedWebSocketEvent.payload
          )
          if (idBasedDTO.correlation.isSameAsCurrentClient()) {
@@ -280,14 +280,14 @@ private suspend fun updateLocalDBAccordingToEvent(
 
 Similarly handle for every possible operation.
 
-#### 2. Custom implementations if the client is offline or disconnected from the server
+### 2. Custom implementations if the client is offline or disconnected from the server
 
 We need to handle two scenarios if the client is offline or disconnected from the server:
 
 1. Handling deletions.
 2. Updating data after the last known `TIME_STAMP`.
 
-##### 2.1 Handling deletions when offline
+### 2.1 Handling deletions when offline
 
 We track deleted items using a server-side `Tombstone` table structured as:
 
@@ -317,7 +317,7 @@ transaction {
 And now on the client side, when both the app and server are online, we pull these tombstone records and delete the
 corresponding items locally.
 
-##### 2.2 Updating data after the last known `TIME_STAMP`
+### 2.2 Updating data after the last known TIME_STAMP
 
 As mentioned earlier, the local database in the app contains a column called `lastModified`. Similarly, tables in the
 remote database also include this column. The app sends its last known `TIME_STAMP` to the server, which returns all
