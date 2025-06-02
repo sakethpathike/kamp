@@ -14,7 +14,7 @@ import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
-import java.util.UUID
+import java.util.*
 
 fun BODY.BlogPage(fileName: String) {
     Column(
@@ -75,7 +75,7 @@ fun BODY.BlogPage(fileName: String) {
             .forEach {
                 when (it) {
                     is MarkdownNode.CodeBlock -> {
-                        val currentTextId= UUID.randomUUID().toString()
+                        val currentTextId = UUID.randomUUID().toString()
                         Column(
                             modifier = Modifier.clip(Shape.RoundedRectangle(cornerRadius = 15.px)).backgroundColor(
                                 Colors.codeblockBG
@@ -93,7 +93,8 @@ fun BODY.BlogPage(fileName: String) {
                             Box(modifier = Modifier.backgroundColor(Colors.primaryContainerDark)) {
                                 MaterialIcon(
                                     iconCode = "content_copy",
-                                    modifier = Modifier.margin(10.px).blockSelection().cursor(Cursor.Pointer).fontSize(16.px).color(Colors.primaryDark),
+                                    modifier = Modifier.margin(10.px).blockSelection().cursor(Cursor.Pointer)
+                                        .fontSize(16.px).color(Colors.primaryDark),
                                     onThisElement = {
                                         onClick = """
                                             const currentCodeBlock = document.getElementById('${currentTextId}');
@@ -119,8 +120,7 @@ fun BODY.BlogPage(fileName: String) {
                                               document.body.removeChild(textarea);
                                             }
                                         """.trimIndent()
-                                    }
-                                )
+                                    })
                             }
                         }
                     }
@@ -132,8 +132,8 @@ fun BODY.BlogPage(fileName: String) {
                         ) {
                             Spacer(
                                 modifier = Modifier.fillMaxWidth(0.98)
-                                    .border(radius = 5.px, color = Colors.outlineDark, width = 1.15.px)
-                                    .backgroundColor(Colors.outlineDark).margin(top = 10.px, bottom = 3.5.px)
+                                    .border(radius = 5.px, color = Colors.codeblockBG, width = 1.15.px)
+                                    .backgroundColor(Colors.codeblockBG).margin(top = (3.5 + 5).px, bottom = 5.px)
                             )
                         }
                     }
