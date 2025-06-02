@@ -1,6 +1,7 @@
 package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
+import kotlinx.html.onClick
 import sakethh.kamp.data.blog.MarkdownParser
 import sakethh.kamp.domain.model.BlogItem
 import sakethh.kamp.domain.model.markdown.EmphasisType
@@ -10,8 +11,10 @@ import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.common.Header
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
+import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
+import java.util.UUID
 
 fun BODY.BlogPage(fileName: String) {
     Column(
@@ -72,6 +75,7 @@ fun BODY.BlogPage(fileName: String) {
             .forEach {
                 when (it) {
                     is MarkdownNode.CodeBlock -> {
+                        val currentTextId= UUID.randomUUID().toString()
                         Column(
                             modifier = Modifier.clip(Shape.RoundedRectangle(cornerRadius = 15.px)).backgroundColor(
                                 Colors.codeblockBG
@@ -79,12 +83,45 @@ fun BODY.BlogPage(fileName: String) {
                                 .margin(top = 10.px, bottom = 10.px)
                         ) {
                             Text(
+                                id = currentTextId,
                                 text = "<pre>${it.text}</pre>",
                                 fontWeight = FontWeight.Predefined.Medium,
                                 color = Colors.primaryDark,
                                 fontSize = 16.px,
                                 modifier = Modifier.padding(12.px).custom("overflow: auto; ")
                             )
+                            Box(modifier = Modifier.backgroundColor(Colors.primaryContainerDark)) {
+                                MaterialIcon(
+                                    iconCode = "content_copy",
+                                    modifier = Modifier.margin(10.px).blockSelection().cursor(Cursor.Pointer).fontSize(16.px).color(Colors.primaryDark),
+                                    onThisElement = {
+                                        onClick = """
+                                            const currentCodeBlock = document.getElementById('${currentTextId}');
+                                            const textToCopy = currentCodeBlock.innerText;
+
+                                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                              navigator.clipboard.writeText(textToCopy)
+                                                .then(() => console.log('Copied to clipboard!'))
+                                                .catch(err => alert('Copy failed: ' + err));
+                                            } else {
+                                              const textarea = document.createElement('textarea');
+                                              textarea.value = textToCopy;
+                                              textarea.style.position = 'absolute';
+                                              textarea.style.left = '-9999px';
+                                              document.body.appendChild(textarea);
+                                              textarea.select();
+                                              try {
+                                                document.execCommand('copy');
+                                                console.log('Copied via execCommand');
+                                              } catch (err) {
+                                                alert('Fallback copy failed: ' + err);
+                                              }
+                                              document.body.removeChild(textarea);
+                                            }
+                                        """.trimIndent()
+                                    }
+                                )
+                            }
                         }
                     }
 
