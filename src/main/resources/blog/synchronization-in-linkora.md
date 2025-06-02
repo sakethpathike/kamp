@@ -58,20 +58,20 @@ to push changes to the server, so I made a generic function that works for all t
 local operations and then push to the remote server:
 
 ```kotlin
-fun &lt;LocalType, RemoteType&gt; performLocalOperationWithRemoteSyncFlow(
+fun <LocalType, RemoteType> performLocalOperationWithRemoteSyncFlow(
    performRemoteOperation: Boolean,
-   remoteOperation: suspend () -&gt; Flow&lt;Result&lt;RemoteType>> = { emptyFlow() },
-   remoteOperationOnSuccess: suspend (RemoteType) -&gt; Unit = {},
-   onRemoteOperationFailure: suspend () -&gt; Unit = {},
-   localOperation: suspend () -&gt; LocalType
-): Flow&lt;Result&lt;LocalType>> {
+   remoteOperation: suspend () -> Flow<Result<RemoteType>> = { emptyFlow() },
+   remoteOperationOnSuccess: suspend (RemoteType) -> Unit = {},
+   onRemoteOperationFailure: suspend () -> Unit = {},
+   localOperation: suspend () -> LocalType
+): Flow<Result<LocalType>> {
    return flow {
       emit(Result.Loading())
       val localResult = localOperation()
-      Result.Success(localResult).let { success -&gt;
+      Result.Success(localResult).let { success ->
          if (performRemoteOperation && canPushToServer()) {
-            remoteOperation().collect { remoteResult -&gt;
-               remoteResult.onFailure { failureMessage -&gt;
+            remoteOperation().collect { remoteResult ->
+               remoteResult.onFailure { failureMessage ->
                   success.isRemoteExecutionSuccessful = false
                   success.remoteFailureMessage = failureMessage
                   onRemoteOperationFailure()
@@ -156,15 +156,15 @@ considered earlier, here's how it will be sent:
 
 ```kotlin
 when (queue.operation) {
-   ARCHIVE_LINK.name -&gt; {
-      val idBasedDTO = Json.decodeFromString&lt;IDBasedDTO&gt;(queueItem.payload)
+   ARCHIVE_LINK.name -> {
+      val idBasedDTO = Json.decodeFromString<IDBasedDTO>(queueItem.payload)
       val remoteLinkId = localLinksRepo.getRemoteLinkId(idBasedDTO.id)
       remoteLinksRepo.archiveALink(idBasedDTO.copy(id = remoteLinkId))
          .removeQueueItemAndSyncTimestamp(queueItem.id)
    }
 }
 
-private suspend inline fun Flow&lt;Result&lt;TimeStampBasedResponse>>.removeQueueItemAndSyncTimestamp(
+private suspend inline fun Flow<Result<TimeStampBasedResponse>>.removeQueueItemAndSyncTimestamp(
    queueId: Long
 ) {
    this.collectLatest {
@@ -200,14 +200,14 @@ private fun checkForLWWConflictAndThrow(id: Long, timeStamp: Long) {
       FoldersTable.select(FoldersTable.lastModified).where {
          FoldersTable.id.eq(id)
       }.let {
-         if (it.single()[FoldersTable.lastModified] &gt; timeStamp) {
+         if (it.single()[FoldersTable.lastModified] > timeStamp) {
             throw LWWConflictException()
          }
       }
    }
 }
 ---
-override suspend fun markAsArchive(idBasedDTO: IDBasedDTO): Result&lt;TimeStampBasedResponse&gt; {
+override suspend fun markAsArchive(idBasedDTO: IDBasedDTO): Result<TimeStampBasedResponse> {
    return try {
       checkForLWWConflictAndThrow(id = idBasedDTO.id, timeStamp = idBasedDTO.eventTimestamp)
       // further impl
@@ -258,8 +258,8 @@ private suspend fun updateLocalDBAccordingToEvent(
    deserializedWebSocketEvent: WebSocketEvent
 ) {
    when (deserializedWebSocketEvent.operation) {
-      MARK_FOLDER_AS_ARCHIVE.name -&gt; {
-         val idBasedDTO = json.decodeFromJsonElement&lt;IDBasedDTO&gt;(
+      MARK_FOLDER_AS_ARCHIVE.name -> {
+         val idBasedDTO = json.decodeFromJsonElement<IDBasedDTO>(
             deserializedWebSocketEvent.payload
          )
          if (idBasedDTO.correlation.isSameAsCurrentClient()) {

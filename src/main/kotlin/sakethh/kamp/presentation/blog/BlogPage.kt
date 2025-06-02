@@ -12,6 +12,7 @@ import sakethh.kamp.presentation.common.Header
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
+import sakethh.kamp.presentation.utils.encodeForHtml
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
 import java.util.*
@@ -84,7 +85,7 @@ fun BODY.BlogPage(fileName: String) {
                         ) {
                             Text(
                                 id = currentTextId,
-                                text = "<pre>${it.text}</pre>",
+                                text = "<pre>${it.text.encodeForHtml()}</pre>",
                                 fontWeight = FontWeight.Predefined.Medium,
                                 color = Colors.primaryDark,
                                 fontSize = 16.px,
@@ -221,7 +222,7 @@ fun BODY.BlogPage(fileName: String) {
 
                                             is InlineNode.PlainText -> {
                                                 Text(
-                                                    text = it.text.trim().run {
+                                                    text = it.text.run {
                                                         if (currentMarkdownNode is MarkdownNode.ListItem && this.startsWith(
                                                                 "-"
                                                             )
@@ -230,13 +231,13 @@ fun BODY.BlogPage(fileName: String) {
                                                         } else {
                                                             this
                                                         }
-                                                    },
+                                                    }.encodeForHtml(),
                                                     fontSize = 18.px,
                                                     color = Colors.onSurfaceDark,
                                                     fontFamily = Constants.Inter,
                                                     fontWeight = FontWeight.Predefined.Normal,
                                                     modifier = Modifier.width("fit-content").display(Display.Inline)
-                                                        .custom("line-height: 1.5")
+                                                        .custom("line-height: 1.5; white-space: pre-wrap; word-break: break-word;")
                                                 )
                                             }
                                         }
