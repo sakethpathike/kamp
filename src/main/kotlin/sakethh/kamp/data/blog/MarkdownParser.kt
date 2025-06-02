@@ -105,7 +105,7 @@ class MarkdownParser {
         val inlineElements = mutableListOf<InlineNode>()
         var skipUntilIndex: Int = -1
         val tempPlainText = StringBuilder()
-        val fences = listOf('*', '_', '`', '[', ']', '(', ')', '~')
+        val fences = listOf('*', '_', '`', '[', ']', '~')
         string.forEachIndexed { index, currentChar ->
             if (index < skipUntilIndex) return@forEachIndexed
 
@@ -125,19 +125,16 @@ class MarkdownParser {
                 }
 
                 '[' -> {
+                    skipUntilIndex = 0
                     inlineElements.add(
                         InlineNode.Link(
-                            url = string.substring(startIndex = index).substringAfter("](").substringBefore(")"),
-                            text = string.substring(startIndex = index + 1).substringBefore("](")
-                        )
+                            url = string.substring(startIndex = index).substringAfter("](")
+                            .substringBefore(")").also {
+                                skipUntilIndex += it.length
+                            }, text = string.substring(startIndex = index + 1).substringBefore("](").also {
+                            skipUntilIndex += it.length
+                        })
                     )
-
-                    string.substring(startIndex = index).also {
-                        skipUntilIndex += it.indexOf("](")
-                    }.substringAfter("](").also {
-                        skipUntilIndex += it.indexOf(")")
-                    }.substringBefore(")")
-
                     skipUntilIndex += index + 4
                 }
 
