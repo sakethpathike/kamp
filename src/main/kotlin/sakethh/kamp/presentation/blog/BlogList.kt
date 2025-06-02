@@ -61,7 +61,7 @@ private fun FlowContent.BlogItem(blogItem: BlogItem) {
         }
         Row(horizontalAlignment = HorizontalAlignment.Center, modifier = Modifier.width("fit-content")) {
             Span(
-                modifier = Modifier.color(Colors.onSecondaryDark).fontSize(12.px),
+                modifier = Modifier.color(Colors.onSurfaceVariantDark).fontSize(12.px),
                 className = "material-symbols-outlined",
                 onThisElement = {}) {
                 +"calendar_clock"
@@ -69,7 +69,7 @@ private fun FlowContent.BlogItem(blogItem: BlogItem) {
             Spacer(modifier = Modifier.width(2.5.px))
             Text(
                 text = blogItem.pubDateTime,
-                color = Colors.onSecondaryDark,
+                color = Colors.onSurfaceVariantDark,
                 fontWeight = FontWeight.Predefined.NormalKeyword,
                 fontFamily = Constants.Inter,
                 fontSize = 14.5.px
