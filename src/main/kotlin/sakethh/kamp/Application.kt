@@ -9,17 +9,15 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.html.ScriptType
-import kotlinx.html.html
-import kotlinx.html.script
+import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import kotlinx.html.unsafe
 import sakethh.kamp.domain.model.Route
 import sakethh.kamp.presentation.blog.BlogList
 import sakethh.kamp.presentation.blog.BlogPage
 import sakethh.kamp.presentation.home.Home
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
+import sakethh.kamp.snapshot.SnapshotManager
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
 import java.net.Inet4Address
@@ -74,18 +72,32 @@ fun Application.module() {
     routing {
         authenticate(Constants.BEARER_AUTH) {
             post(path = "/snapshot/trigger") {
-
+                SnapshotManager.pushANewSnapshot().onSuccess {
+                    call.respond(it)
+                }.onFailure {
+                    call.respond(it.message ?: it.stackTrace.toString())
+                }
             }
         }
         staticResources(remotePath = "/", basePackage = "static")
         allRoutes.forEach { currentRoute ->
             get(currentRoute.route) {
                 call.respondText(contentType = ContentType.Text.Html, text = createHTML().html {
-                    Surface(
-                        onTheBodyElement = {
-                        script(type = ScriptType.textJavaScript) {
-                            unsafe {
-                                +"""
+                    KampSurface {
+                        currentRoute.content(this)
+                    }
+                })
+            }
+        }
+    }
+}
+
+fun HTML.KampSurface(content: BODY.() -> Unit) {
+    Surface(
+        onTheBodyElement = {
+        script(type = ScriptType.textJavaScript) {
+            unsafe {
+                +"""
       document.addEventListener("DOMContentLoaded", () => {
         const current_page = document.getElementById("current_page");
         const footerOnBlogLists = document.getElementById("footerOnBlogLists");
@@ -104,39 +116,35 @@ fun Application.module() {
         
       });
       """.trimIndent()
-                            }
-                        }
-                    }, style = {
-                        unsafe {
-                            +"""
+            }
+        }
+    }, style = {
+        unsafe {
+            +"""
                     ::selection {
                       background: ${Colors.primaryDark};
                       color: ${Colors.onPrimaryDark};
                     }
                     """.trimIndent()
-                        }
-                    }, fonts = listOf(
-                        "https://fonts.googleapis.com/icon?family=Material+Icons",
-                        "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded",
-                        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
-                        "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
-                    ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
-                        """
+        }
+    }, fonts = listOf(
+        "https://fonts.googleapis.com/icon?family=Material+Icons",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
+        "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
+        """
                           overflow-y: auto;
                     """.trimIndent()
-                    ), onTheHeadElement = {
-                        unsafe {
-                            raw(
-                                """
+    ), onTheHeadElement = {
+        unsafe {
+            raw(
+                """
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 """.trimIndent()
-                            )
-                        }
-                    }) {
-                        currentRoute.content(this)
-                    }
-                })
-            }
+            )
         }
+    }) {
+        content()
     }
 }
