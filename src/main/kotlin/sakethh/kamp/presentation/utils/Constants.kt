@@ -15,4 +15,5 @@ object Constants {
     const val ANDROID_SDK = "Android SDK"
     const val ANDROID_JETPACK = "Android Jetpack"
     const val RealTimeSync = "Real-Time Sync"
+    const val BEARER_AUTH = "Security.BEARER"
 }

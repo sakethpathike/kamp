@@ -2,6 +2,7 @@ package sakethh.kamp
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
@@ -18,16 +19,14 @@ import sakethh.kamp.presentation.blog.BlogList
 import sakethh.kamp.presentation.blog.BlogPage
 import sakethh.kamp.presentation.home.Home
 import sakethh.kamp.presentation.utils.Colors
+import sakethh.kamp.presentation.utils.Constants
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
 import java.net.Inet4Address
 
 fun main() {
     embeddedServer(
-        Netty,
-        port = 8080,
-        host = Inet4Address.getLocalHost().hostAddress,
-        module = Application::module
+        Netty, port = 8080, host = Inet4Address.getLocalHost().hostAddress, module = Application::module
     ).start(wait = true)
 }
 
@@ -38,6 +37,17 @@ fun Application.module() {
         allowHost(host = "sakethpathike.github.io")
         allowHost(host = "sakethpathike.netlify.app")
         allowHost(host = "kamp.onrender.com")
+    }
+    install(Authentication) {
+        bearer(name = Constants.BEARER_AUTH) {
+            authenticate { authToken ->
+                if (authToken.token == System.getenv(Constants.BEARER_AUTH)) {
+                    UserIdPrincipal(name = "admin")
+                } else {
+                    null
+                }
+            }
+        }
     }
     val allRoutes = mutableListOf(
         Route(route = "/", content = {
@@ -54,22 +64,28 @@ fun Application.module() {
     blogFileNames.forEach { fileName ->
         allRoutes.add(
             Route(
-            route = "/blog/${fileName}", content = {
-                with(it) {
-                    BlogPage(fileName)
-                }
-            }))
+                route = "/blog/${fileName}", content = {
+                    with(it) {
+                        BlogPage(fileName)
+                    }
+                })
+        )
     }
     routing {
+        authenticate(Constants.BEARER_AUTH) {
+            post(path = "/snapshot/trigger") {
+
+            }
+        }
         staticResources(remotePath = "/", basePackage = "static")
         allRoutes.forEach { currentRoute ->
             get(currentRoute.route) {
                 call.respondText(contentType = ContentType.Text.Html, text = createHTML().html {
                     Surface(
                         onTheBodyElement = {
-                            script(type = ScriptType.textJavaScript) {
-                                unsafe {
-                                    +"""
+                        script(type = ScriptType.textJavaScript) {
+                            unsafe {
+                                +"""
       document.addEventListener("DOMContentLoaded", () => {
         const current_page = document.getElementById("current_page");
         const footerOnBlogLists = document.getElementById("footerOnBlogLists");
@@ -88,35 +104,35 @@ fun Application.module() {
         
       });
       """.trimIndent()
-                                }
                             }
-                        }, style = {
-                            unsafe {
-                                +"""
+                        }
+                    }, style = {
+                        unsafe {
+                            +"""
                     ::selection {
                       background: ${Colors.primaryDark};
                       color: ${Colors.onPrimaryDark};
                     }
                     """.trimIndent()
-                            }
-                        }, fonts = listOf(
-                            "https://fonts.googleapis.com/icon?family=Material+Icons",
-                            "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded",
-                            "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
-                            "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
-                        ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
-                            """
+                        }
+                    }, fonts = listOf(
+                        "https://fonts.googleapis.com/icon?family=Material+Icons",
+                        "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded",
+                        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
+                        "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
+                    ), modifier = Modifier.padding(0.px).margin(0).backgroundColor(Colors.Background).custom(
+                        """
                           overflow-y: auto;
                     """.trimIndent()
-                        ), onTheHeadElement = {
-                            unsafe {
-                                raw(
-                                    """
+                    ), onTheHeadElement = {
+                        unsafe {
+                            raw(
+                                """
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 """.trimIndent()
-                                )
-                            }
-                        }) {
+                            )
+                        }
+                    }) {
                         currentRoute.content(this)
                     }
                 })

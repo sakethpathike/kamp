@@ -31,4 +31,5 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.github.sakethpathike:kapsule:0.1.2")
     implementation("io.ktor:ktor-server-cors")
+    implementation("io.ktor:ktor-server-auth-jvm")
 }
