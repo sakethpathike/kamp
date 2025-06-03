@@ -16,4 +16,7 @@ object Constants {
     const val ANDROID_JETPACK = "Android Jetpack"
     const val RealTimeSync = "Real-Time Sync"
     const val BEARER_AUTH = "Security.BEARER"
+
+    const val KAMP_BOT_EMAIL = "KAMP_BOT_EMAIL"
+    const val KAMP_BOT_PUSH_URL = "KAMP_BOT_PUSH_URL"
 }
