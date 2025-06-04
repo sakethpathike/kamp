@@ -10,7 +10,6 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -23,12 +22,11 @@ import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.snapshot.SnapshotManager
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
-import java.net.Inet4Address
 import kotlin.io.path.ExperimentalPathApi
 
 fun main() {
     embeddedServer(
-        Netty, port = 8080, host = Inet4Address.getLocalHost().hostAddress, module = Application::module
+        Netty, port = 8080, host = "0.0.0.0", module = Application::module
     ).start(wait = true)
 }
 
