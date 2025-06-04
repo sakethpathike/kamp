@@ -1,0 +1,51 @@
+name: Build, Run, and Snapshot on Push to Master
+
+on:
+  push:
+    branches:
+      - test-actions
+
+jobs:
+  build-and-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile -t my-app:latest .
+
+      - name: Run container in detached mode
+        run: |
+          docker run -d --name my-app-container -p 8080:8080 my-app:latest
+
+      - name: Wait for service to be ready
+        run: |
+          echo "Waiting for the app to start..."
+          sleep 10
+
+      - name: Invoke snapshot endpoint
+        env:
+          BEARER_TOKEN: ${{ secrets.BEARER_AUTH }}
+        run: |
+          RESPONSE=$(curl --write-out "HTTPSTATUS:%{http_code}" \
+            --request POST \
+            --url http://localhost:8080/snapshot/push \
+            --header "Authorization: Bearer $BEARER_TOKEN" \
+            --silent)
+          # Separate body and status
+          BODY=$(echo "$RESPONSE" | sed -e 's/HTTPSTATUS\:.*//g')
+          STATUS=$(echo "$RESPONSE" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          echo "HTTP Status: $STATUS"
+          echo "Response Body: $BODY"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop my-app-container
+          docker rm my-app-container
