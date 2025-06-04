@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-snapshot:
     runs-on: ubuntu-latest
+    env:
+      BEARER_TOKEN: ${{ secrets.BEARER_AUTH }}
 
     steps:
       - name: Check out repository
@@ -22,7 +24,9 @@ jobs:
 
       - name: Run container in detached mode
         run: |
-          docker run -d --name my-app-container -p 8080:8080 my-app:latest
+          docker run -d --name my-app-container -p 8080:8080 \
+            -e BEARER_AUTH="$BEARER_TOKEN" \
+            my-app:latest
 
       - name: Wait for service to be ready
         run: |
@@ -37,7 +41,7 @@ jobs:
           RESPONSE=$(curl --write-out "HTTPSTATUS:%{http_code}" \
             --request GET \
             --url http://localhost:8080/snapshot/push \
-            --header "Authorization: Bearer ${{ secrets.BEARER_AUTH }}" \
+            --header "Authorization: Bearer $BEARER_TOKEN" \
             --silent)
           # Separate body and status
           BODY=$(echo "$RESPONSE" | sed -e 's/HTTPSTATUS\:.*//g')
