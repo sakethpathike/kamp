@@ -9,6 +9,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import sakethh.kamp.domain.model.Route
@@ -83,10 +85,12 @@ fun Application.module() {
     routing {
         authenticate(Constants.BEARER_AUTH) {
             post(path = "/snapshot/push") {
-                SnapshotManager.pushANewSnapshot().onSuccess {
-                    call.respond(it)
-                }.onFailure {
-                    call.respond(it.stackTrace.toString())
+                call.application.launch(Dispatchers.IO) {
+                    SnapshotManager.pushANewSnapshot().onSuccess {
+                        call.respond(it)
+                    }.onFailure {
+                        call.respond(it.stackTrace.toString())
+                    }
                 }
             }
         }
