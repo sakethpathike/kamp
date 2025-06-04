@@ -188,7 +188,7 @@ anything about it).
 In conclusion, the following image should give you a clear idea of how all these components work together to ensure
 `Client-to-Server` sync works as expected:
 
-![client to server in linkora](/images/synchronization-in-linkora/client-to-server.png)
+![client to server in linkora](/images/linkora-sync--client-to-server.png)
 
 Now on the server-side, LWW (Last Write Wins) is implemented for some routes where updating is required. This makes sure
 the server only updates newer values in case all clients and the server aren't up at the same time:
@@ -352,8 +352,8 @@ In conclusion, the following images should give you a clear idea of how all thes
 `Server-to-Client` sync operates as expected:
 
 1. If both app and server are online.
-   ![](/images/synchronization-in-linkora/server-to-client-with-socket.png)
+   ![](/images/linkora-sync--server-to-client-with-socket.png)
 2. If the client is offline or disconnected from the server.
-   ![](/images/synchronization-in-linkora/server-to-client-with-manual.png)
+   ![](/images/linkora-sync--server-to-client-with-manual.png)
 ---
 Overall, this is how synchronization works in Linkora. These operations are also used when performing manual syncing or importing data from external files, but that is outside the context of this topic, hence I didn't include it.

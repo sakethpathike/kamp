@@ -62,12 +62,17 @@ object SnapshotManager {
                 "git", "clone", "https://github.com/sakethpathike/sakethpathike.github.io.git", tempDir.pathString
             ).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
-            // setup
+            // setup;
+            // this doesn't have
+            // to be as same as clone's because if new files/folders gets added in this server
+            // which doesn't exist in remote snapshot yet,
+            // this would help for further operations
             listOf<Pair<Boolean, String>>(
                 Pair(false, tempDir.pathString + "/README.md"),
                 Pair(false, tempDir.pathString + "/blog.html"),
                 Pair(false, tempDir.pathString + "/index.html"),
-                Pair(true, tempDir.pathString + "/blog")
+                Pair(true, tempDir.pathString + "/blog"),
+                Pair(true, tempDir.pathString + "/images")
             ).forEach {
                 createAFileIfNotExists(isDir = it.first, path = it.second)
             }
@@ -78,55 +83,80 @@ object SnapshotManager {
 
             ProcessBuilder("git", "checkout", "master").directory(tempDir.toFile()).start().waitFor()
 
-            tempDir.listDirectoryEntries().forEach { workingGitDirFile ->
-                if (workingGitDirFile.isRegularFile()) {
-                    when (workingGitDirFile.fileName.toString()) {
+            lastCommitHash = lastCommitLogFile.readText()
+
+            tempDir.listDirectoryEntries().forEach { currentDirectoryEntry ->
+                if (currentDirectoryEntry.isRegularFile()) {
+                    when (currentDirectoryEntry.fileName.toString()) {
                         "index.html" -> {
-                            workingGitDirFile.writeText(homeScreenContent)
+                            currentDirectoryEntry.writeText(homeScreenContent)
                         }
 
                         "blog.html" -> {
-                            workingGitDirFile.writeText(blogListContent)
+                            currentDirectoryEntry.writeText(blogListContent)
                         }
 
                         "README.md" -> {
-                            var updatedREADME = workingGitDirFile.readText().split("\n").dropLast(1).joinToString("\n")
-                            updatedREADME += "\n\nThis snapshot was generated from kamp commit ${
-                                lastCommitLogFile.readText().trim()
-                            }"
-                            workingGitDirFile.writeText(updatedREADME.trim())
+                            val updatedREADME = """
+                              This repo is entirely auto-generated from [kamp](https://github.com/sakethpathike/kamp) @${lastCommitHash}.
+
+- The markdown files from the kamp repo are converted to HTML using a custom markdown parser combined with [kapsule](https://github.com/sakethpathike/kapsule).
+- The generated HTML reflects kamp’s content exactly at that commit.
+- This repo serves as a static snapshot mirror, pushed automatically by kamp-bot.
+
+> Note: The HTML includes JavaScript similar to the live kamp app, so dynamic UI behavior is expected.
+                            """.trimIndent()
+                            currentDirectoryEntry.writeText(updatedREADME.trim())
                         }
                     }
                 }
 
-                if (workingGitDirFile.isDirectory()) {
-                    val currDirPath = workingGitDirFile.pathString
-                    when (workingGitDirFile.fileName.toString()) {
+                if (currentDirectoryEntry.isDirectory() &&
+                    // I don't think this really needs an explanation
+                    currentDirectoryEntry.fileName.toString() != ".git"
+                ) {
+                    val currentDirectoryEntryRef = currentDirectoryEntry
+
+                    // we will delete everything
+                    // because we don't know what's been changed and what not
+                    // when we are at this step in the process,
+                    // we can compare it against the files in temp repo,
+                    // but this is _alright_
+                    currentDirectoryEntry.deleteRecursively()
+
+                    // now that we deleted all of it,
+                    // we need
+                    // to create the _new_ directory
+                    // that we are currently working in
+                    // because:
+                    // > If the entry located by this path is a directory,
+                    // > this function (deleteRecursively)
+                    // recursively deletes its content and the directory itself.
+                    createAFileIfNotExists(isDir = true, path = currentDirectoryEntryRef.pathString)
+
+
+                    when (currentDirectoryEntryRef.fileName.toString()) {
                         "blog" -> {
-
-                            // we will delete everything
-                            // because we don't know what's been changed and what not
-                            // when we are at this step in the process,
-                            // we can compare it against the files in temp repo,
-                            // but this is _alright_
-
-                            workingGitDirFile.deleteRecursively()
-
-                            // now that we deleted all of it,
-                            // we need
-                            // to create the _new_ directory
-                            // that we are currently working in
-                            // because:
-                            // > If the entry located by this path is a directory,
-                            // > this function (deleteRecursively)
-                            // recursively deletes its content and the directory itself.
-                            createAFileIfNotExists(isDir = true, path = currDirPath)
-
                             allBlogs.forEach { currentBlog ->
-                                val filePath = workingGitDirFile.pathString + "/" + currentBlog.first + ".html"
+                                val filePath = currentDirectoryEntryRef.pathString + "/" + currentBlog.first + ".html"
                                 Files.createFile(Path(path = filePath))
                                 File(filePath).writeText(currentBlog.second)
                             }
+                        }
+
+                        "images" -> {
+                            File(object {}.javaClass.getResource("/static/images")!!.toURI()).toPath()
+                                .listDirectoryEntries().filter { it.isRegularFile() }.forEach { currentImg ->
+                                    val filePath =
+                                        currentDirectoryEntryRef.pathString + "/" + currentImg.nameWithoutExtension + ".${currentImg.extension}"
+                                    Files.createFile(Path(path = filePath))
+
+                                    currentImg.inputStream().use { inputStream ->
+                                        File(filePath).outputStream().use { outputStream ->
+                                            inputStream.copyTo(outputStream)
+                                        }
+                                    }
+                                }
                         }
                     }
                 }
@@ -136,7 +166,6 @@ object SnapshotManager {
                 "git", "add", ".", tempDir.pathString
             ).directory(tempDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
-            lastCommitHash = lastCommitLogFile.readText()
 
             ProcessBuilder(
                 "git",
@@ -155,7 +184,7 @@ object SnapshotManager {
             }?.start()?.waitFor()
 
             ProcessBuilder(
-                "git", "push", "-f", System.getenv(Constants.KAMP_BOT_PUSH_URL), "HEAD:master"
+                "git", "push", System.getenv(Constants.KAMP_BOT_PUSH_URL), "HEAD:master"
             ).directory(tempDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
         } catch (e: Exception) {
