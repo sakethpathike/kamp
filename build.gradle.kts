@@ -32,4 +32,5 @@ dependencies {
     implementation("io.github.sakethpathike:kapsule:0.1.2")
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-client-cio-jvm:3.1.3")
 }

@@ -1,6 +1,7 @@
 package sakethh.kamp.snapshot
 
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.html.html
@@ -55,8 +56,9 @@ object SnapshotManager {
         // temp dir for the current clone
         val tempKampSnapshotDir = createTempDirectory()
         val gitLogFile = createTempFile()
-        val lastCommitHash = HttpClient().use {
-            it.get(urlString = "https://api.github.com/repos/sakethpathike/kamp/commits?sha=master&per_page=1").bodyAsText()
+        val lastCommitHash = HttpClient(CIO).use {
+            it.get(urlString = "https://api.github.com/repos/sakethpathike/kamp/commits?sha=master&per_page=1")
+                .bodyAsText()
                 .substringAfter("\"sha\"").substringAfter("\"").substringBefore("\"").trim()
         }
 
@@ -64,7 +66,10 @@ object SnapshotManager {
 
             // clone the repo
             ProcessBuilder(
-                "git", "clone", "https://github.com/sakethpathike/sakethpathike.github.io.git", tempKampSnapshotDir.pathString
+                "git",
+                "clone",
+                "https://github.com/sakethpathike/sakethpathike.github.io.git",
+                tempKampSnapshotDir.pathString
             ).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
             // setup;
