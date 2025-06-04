@@ -1,21 +1,15 @@
 # kamp
 
-kamp serves data and handles HTML generation for my personal site/portfolio, built with ktor and [kapsule](https://github.com/sakethpathike/kapsule).
+kamp serves data and handles HTML generation for my personal site/portfolio, built with Ktor
+and [kapsule](https://github.com/sakethpathike/kapsule).
 
-The blog _posts_ are written in standard Markdown files, parsed by a custom parser (i've written it based on [this spec](https://spec.commonmark.org/0.31.2/#appendix-a-parsing-strategy), but it doesn't strictly follow it; I took it as reference), and kapsule is used to generate the html based on the parsed Markdown nodes.
+kamp also implements a snapshot _engine_ that pushes static items
+to [sakethpathike.github.io](https://github.com/sakethpathike/sakethpathike.github.io), ensuring _content_ stays available
+regardless of this server’s deployment state. Snapshots automatically push on each commit to this repo’s master branch.
 
-### Request Flow
-
-```mermaid
-sequenceDiagram
-    Client ->> kamp: GET /
-    activate kamp
-    kamp ->> kapsule: Build HTML string
-    kapsule -->> kamp: Raw HTML string
-    kamp ->> Client: Full HTML document
-    deactivate kamp
-    Note over kamp: Generates full HTML
-```
+The blog _posts_ are standard Markdown files, parsed by a custom parser I wrote (based
+ on [this spec](https://spec.commonmark.org/0.31.2/#appendix-a-parsing-strategy), but not strictly following it). kapsule
+generates HTML from the parsed Markdown nodes.
 
 ### kamp?
 
