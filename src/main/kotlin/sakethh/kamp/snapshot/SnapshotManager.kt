@@ -99,7 +99,7 @@ object SnapshotManager {
                             val updatedREADME = """
                               This repo is entirely auto-generated from [kamp](https://github.com/sakethpathike/kamp) @${lastCommitHash}.
 
-- The markdown files from the kamp repo are converted to HTML using a custom markdown parser combined with [kapsule](https://github.com/sakethpathike/kapsule).
+- Blog markdown files from the kamp repo are converted to HTML using a custom markdown parser combined with [kapsule](https://github.com/sakethpathike/kapsule).
 - The generated HTML reflects kamp’s content exactly at that commit.
 - This repo serves as a static snapshot mirror, pushed automatically by kamp-bot.
 
