@@ -33,13 +33,11 @@ jobs:
           done
 
       - name: Invoke snapshot endpoint
-        env:
-          BEARER_TOKEN: ${{ secrets.BEARER_AUTH }}
         run: |
           RESPONSE=$(curl --write-out "HTTPSTATUS:%{http_code}" \
             --request GET \
             --url http://localhost:8080/snapshot/push \
-            --header "Authorization: Bearer $BEARER_TOKEN" \
+            --header "Authorization: Bearer ${{ secrets.BEARER_AUTH }}" \
             --silent)
           # Separate body and status
           BODY=$(echo "$RESPONSE" | sed -e 's/HTTPSTATUS\:.*//g')
