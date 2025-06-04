@@ -1,5 +1,8 @@
 package sakethh.kamp.snapshot
 
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.html.html
 import kotlinx.html.stream.createHTML
 import sakethh.kamp.KampSurface
@@ -29,7 +32,7 @@ object SnapshotManager {
     }
 
     @OptIn(ExperimentalPathApi::class)
-    fun pushANewSnapshot(): Result<String> {
+    suspend fun pushANewSnapshot(): Result<String> {
         if (isAnySnapshotProcessGoingOn) return Result.failure(IllegalStateException("A snapshot push is in progress"))
 
         isAnySnapshotProcessGoingOn = true
@@ -50,16 +53,18 @@ object SnapshotManager {
         }
 
         // temp dir for the current clone
-        val tempDir = createTempDirectory()
-        val lastCommitLogFile = createTempFile()
+        val tempKampSnapshotDir = createTempDirectory()
         val gitLogFile = createTempFile()
-        var lastCommitHash: String
+        val lastCommitHash = HttpClient().use {
+            it.get(urlString = "https://api.github.com/repos/sakethpathike/kamp/commits?sha=master&per_page=1").bodyAsText()
+                .substringAfter("\"sha\"").substringAfter("\"").substringBefore("\"").trim()
+        }
 
         try {
 
             // clone the repo
             ProcessBuilder(
-                "git", "clone", "https://github.com/sakethpathike/sakethpathike.github.io.git", tempDir.pathString
+                "git", "clone", "https://github.com/sakethpathike/sakethpathike.github.io.git", tempKampSnapshotDir.pathString
             ).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
             // setup;
@@ -68,24 +73,18 @@ object SnapshotManager {
             // which doesn't exist in remote snapshot yet,
             // this would help for further operations
             listOf<Pair<Boolean, String>>(
-                Pair(false, tempDir.pathString + "/README.md"),
-                Pair(false, tempDir.pathString + "/blog.html"),
-                Pair(false, tempDir.pathString + "/index.html"),
-                Pair(true, tempDir.pathString + "/blog"),
-                Pair(true, tempDir.pathString + "/images")
+                Pair(false, tempKampSnapshotDir.pathString + "/README.md"),
+                Pair(false, tempKampSnapshotDir.pathString + "/blog.html"),
+                Pair(false, tempKampSnapshotDir.pathString + "/index.html"),
+                Pair(true, tempKampSnapshotDir.pathString + "/blog"),
+                Pair(true, tempKampSnapshotDir.pathString + "/images")
             ).forEach {
                 createAFileIfNotExists(isDir = it.first, path = it.second)
             }
 
-            // get the last commit hash
-            ProcessBuilder("git", "rev-parse", "HEAD").directory(tempDir.toFile())
-                .redirectAllResponsesTo(lastCommitLogFile.toFile())?.start()?.waitFor()
+            ProcessBuilder("git", "checkout", "master").directory(tempKampSnapshotDir.toFile()).start().waitFor()
 
-            ProcessBuilder("git", "checkout", "master").directory(tempDir.toFile()).start().waitFor()
-
-            lastCommitHash = lastCommitLogFile.readText()
-
-            tempDir.listDirectoryEntries().forEach { currentDirectoryEntry ->
+            tempKampSnapshotDir.listDirectoryEntries().forEach { currentDirectoryEntry ->
                 if (currentDirectoryEntry.isRegularFile()) {
                     when (currentDirectoryEntry.fileName.toString()) {
                         "index.html" -> {
@@ -163,8 +162,8 @@ object SnapshotManager {
             }
 
             ProcessBuilder(
-                "git", "add", ".", tempDir.pathString
-            ).directory(tempDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
+                "git", "add", ".", tempKampSnapshotDir.pathString
+            ).directory(tempKampSnapshotDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
 
             ProcessBuilder(
@@ -174,7 +173,7 @@ object SnapshotManager {
                 "kamp-bot  <${System.getenv(Constants.KAMP_BOT_EMAIL).trim()}>",
                 "-m",
                 "snapshot: sync with kamp@$lastCommitHash"
-            ).directory(tempDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.apply {
+            ).directory(tempKampSnapshotDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.apply {
                 environment().putAll(
                     mapOf(
                         "GIT_COMMITTER_NAME" to "kamp-bot",
@@ -185,15 +184,14 @@ object SnapshotManager {
 
             ProcessBuilder(
                 "git", "push", System.getenv(Constants.KAMP_BOT_PUSH_URL), "HEAD:master"
-            ).directory(tempDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
+            ).directory(tempKampSnapshotDir.toFile()).redirectAllResponsesTo(gitLogFile.toFile())?.start()?.waitFor()
 
         } catch (e: Exception) {
             e.printStackTrace()
             return Result.failure(e)
         } finally {
             isAnySnapshotProcessGoingOn = false
-            tempDir.deleteRecursively()
-            lastCommitLogFile.deleteIfExists()
+            tempKampSnapshotDir.deleteRecursively()
         }
 
 
