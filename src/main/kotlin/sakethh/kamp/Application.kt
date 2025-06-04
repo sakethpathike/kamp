@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import sakethh.kamp.domain.model.Route
@@ -22,17 +23,8 @@ import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.snapshot.SnapshotManager
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
-import java.io.File
 import java.net.Inet4Address
 import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.createTempDirectory
-import kotlin.io.path.createTempFile
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.pathString
-import kotlin.io.println
-import kotlin.io.readText
 
 fun main() {
     embeddedServer(
@@ -85,13 +77,9 @@ fun Application.module() {
     routing {
         authenticate(Constants.BEARER_AUTH) {
             post(path = "/snapshot/push") {
-                call.application.launch(Dispatchers.IO) {
-                    SnapshotManager.pushANewSnapshot().onSuccess {
-                        call.respond(it)
-                    }.onFailure {
-                        call.respond(it.stackTrace.toString())
-                    }
-                }
+                call.respond(withContext(Dispatchers.IO) {
+                    SnapshotManager.pushANewSnapshot().fold(onSuccess = { it }, onFailure = { it.stackTraceToString() })
+                })
             }
         }
         staticResources(remotePath = "/", basePackage = "static")
