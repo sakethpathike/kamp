@@ -34,7 +34,7 @@ jobs:
           BEARER_TOKEN: ${{ secrets.BEARER_AUTH }}
         run: |
           RESPONSE=$(curl --write-out "HTTPSTATUS:%{http_code}" \
-            --request POST \
+            --request GET \
             --url http://localhost:8080/snapshot/push \
             --header "Authorization: Bearer $BEARER_TOKEN" \
             --silent)

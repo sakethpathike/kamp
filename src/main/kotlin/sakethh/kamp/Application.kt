@@ -74,7 +74,7 @@ fun Application.module() {
     }
     routing {
         authenticate(Constants.BEARER_AUTH) {
-            post(path = "/snapshot/push") {
+            get(path = "/snapshot/push") {
                 call.respond(withContext(Dispatchers.IO) {
                     SnapshotManager.pushANewSnapshot().fold(onSuccess = { it }, onFailure = { it.stackTraceToString() })
                 })
