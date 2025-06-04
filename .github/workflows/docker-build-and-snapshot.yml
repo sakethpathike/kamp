@@ -47,6 +47,10 @@ jobs:
           echo "HTTP Status: $STATUS"
           echo "Response Body: $BODY"
 
+      - name: Show container logs
+        run: |
+          docker logs my-app-container
+
       - name: Stop and remove container
         if: always()
         run: |
