@@ -38,7 +38,7 @@ fun BODY.Home() {
             fontFamily = Constants.Inter,
             color = Colors.secondaryDark
         )
-        Spacer(modifier = Modifier.height(15.px))
+        Spacer(modifier = Modifier.height(10.px))
         Text(
             fontFamily = Constants.Inter,
             text = """
