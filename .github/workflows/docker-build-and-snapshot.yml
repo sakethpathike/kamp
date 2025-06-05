@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BEARER_TOKEN: ${{ secrets.BEARER_AUTH }}
+      KAMP_BOT_EMAIL: ${{ secrets.KAMP_BOT_EMAIL }}
+      KAMP_BOT_PUSH_URL: ${{ secrets.KAMP_BOT_PUSH_URL }}
 
     steps:
       - name: Check out repository
@@ -20,13 +22,15 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f Dockerfile -t my-app:latest .
+          docker build -f Dockerfile -t kamp:latest .
 
       - name: Run container in detached mode
         run: |
-          docker run -d --name my-app-container -p 8080:8080 \
+          docker run -d --name kamp-container -p 8080:8080 \
             -e BEARER_AUTH="$BEARER_TOKEN" \
-            my-app:latest
+            -e KAMP_BOT_EMAIL="$KAMP_BOT_EMAIL" \
+            -e KAMP_BOT_PUSH_URL="$KAMP_BOT_PUSH_URL" \
+            kamp:latest
 
       - name: Wait for service to be ready
         run: |
@@ -51,10 +55,10 @@ jobs:
 
       - name: Show container logs
         run: |
-          docker logs my-app-container
+          docker logs kamp-container
 
       - name: Stop and remove container
         if: always()
         run: |
-          docker stop my-app-container
-          docker rm my-app-container
+          docker stop kamp-container
+          docker rm kamp-container
