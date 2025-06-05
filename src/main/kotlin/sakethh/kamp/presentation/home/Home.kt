@@ -25,26 +25,60 @@ fun BODY.Home() {
         Spacer(modifier = Modifier.height(25.px))
         Text(
             text = "Saketh Pathike",
-            fontWeight = FontWeight.Predefined.Black,
-            fontSize = 32.px,
+            fontWeight = FontWeight.Custom("900"),
+            fontSize = 26.px,
             fontFamily = Constants.Inter,
             color = Colors.primaryDark
         )
+        Spacer(modifier = Modifier.height(5.px))
         Text(
-            text = "Android Dev • Kotlin Multiplatform • B.Tech CSE student",
-            fontWeight = FontWeight.Predefined.Medium,
+            text = "Android Developer • Backend & Kotlin Multiplatform • B.Tech CSE Student",
+            fontWeight = FontWeight.Custom("600"),
             fontSize = 18.px,
             fontFamily = Constants.Inter,
             color = Colors.secondaryDark
         )
+        Spacer(modifier = Modifier.height(15.px))
         Text(
             fontFamily = Constants.Inter,
-            text = "i build stuff <i>passionately</i>.",
-            fontWeight = FontWeight.Predefined.Normal,
-            fontSize = 16.px,
-            color = Colors.secondaryDark
+            text = """
+                Hey, I'm Saketh. I build Android apps and backend systems using Kotlin and build tools I would use myself. 
+            """.trimIndent(),
+            fontWeight = FontWeight.Custom("400"),
+            fontSize = 18.px,
+            color = Colors.secondaryDark,
+            modifier = Modifier.custom("line-height:1.4; ")
         )
-        Spacer(modifier = Modifier.height(20.px))
+        Spacer(modifier = Modifier.height(4.px))
+        Text(
+            fontFamily = Constants.Inter,
+            text = """
+Fun fact: you’re currently reading this thanks to my custom backend system called <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a> and also <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a>, which generated the HTML that you are reading these words on.            """.trimIndent(),
+            fontWeight = FontWeight.Custom("400"),
+            fontSize = 18.px,
+            color = Colors.secondaryDark,
+            modifier = Modifier.custom("line-height:1.4; ")
+        )
+        Spacer(modifier = Modifier.height(4.px))
+        Text(
+            fontFamily = Constants.Inter,
+            text = """
+ I'm 20, and I usually overthink, but hey, the fact that you can read this means the wheels work.           """.trimIndent(),
+            fontWeight = FontWeight.Custom("400"),
+            fontSize = 18.px,
+            color = Colors.secondaryDark,
+            modifier = Modifier.custom("line-height:1.4; ")
+        )
+        Row(
+            verticalAlignment = VerticalAlignment.Center, horizontalAlignment = HorizontalAlignment.Center
+        ) {
+            Spacer(
+                modifier = Modifier.fillMaxWidth(0.98)
+                    .border(radius = 5.px, color = Colors.codeblockBG, width = 1.15.px)
+                    .backgroundColor(Colors.codeblockBG).opacity(0.45)
+                    .margin(start = 7.5.px, end = 7.5.px, top = 15.px, bottom = 15.px)
+            )
+        }
         Text(
             text = "Profiles\n& Contact",
             fontWeight = FontWeight.Predefined.SemiBold,
@@ -207,11 +241,11 @@ fun getPinnedRepos(): List<GithubRepoDTO> = runBlocking {
                             .trim()
                     pinnedRepos.add(
                         GithubRepoDTO(
-                            name = name,
-                            description = description,
-                            starCount = starCount,
-                            programmingLanguage = programmingLanguage,
-                            tags = tags.find {
+                            name = name, description = description, starCount = try {
+                                starCount.trim().toInt()
+                            } catch (_: Exception) {
+                                0
+                            }.toString(), programmingLanguage = programmingLanguage, tags = tags.find {
                                 it.repoName == name
                             }?.tags ?: emptyList()
                         )
