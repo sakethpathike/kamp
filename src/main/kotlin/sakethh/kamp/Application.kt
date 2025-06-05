@@ -33,7 +33,7 @@ fun main() {
 val blogFileNames: List<String> = object {}.javaClass.getResourceAsStream("/blog/blogNames.txt")?.use {
     it.bufferedReader().use {
         it.readText().split(",")
-    }
+    }.map { it.trim() }
 } ?: emptyList()
 
 @OptIn(ExperimentalPathApi::class)

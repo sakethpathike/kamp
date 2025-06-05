@@ -155,15 +155,13 @@ object SnapshotManager {
                                     }
                                 } ?: emptyList()
 
-                            imageNames.forEach { currentImgName ->
+                            imageNames.map { it.trim() }.forEach { currentImgName ->
                                 val filePath =
-                                    currentDirectoryEntryRef.pathString + "/" + currentImgName.substringBefore(".") + ".${
-                                        currentImgName.substringAfter(".")
-                                    }"
-                                Files.createFile(Path(path = filePath))
+                                    currentDirectoryEntryRef.pathString + "/" + currentImgName
 
                                 object {}.javaClass.getResourceAsStream("/static/images/$currentImgName")
                                     ?.use { inputStream ->
+                                        Files.createFile(Path(path = filePath))
                                         File(filePath).outputStream().use { outputStream ->
                                             inputStream.copyTo(outputStream)
                                         }
