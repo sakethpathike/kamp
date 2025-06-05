@@ -1,5 +1,9 @@
 package sakethh.kamp.presentation.home
 
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.BODY
 import kotlinx.html.FlowContent
@@ -12,10 +16,6 @@ import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 
 fun BODY.Home() {
     Column(
@@ -185,40 +185,39 @@ private fun FlowContent.ContactItem(imageSrc: String, string: String, url: Strin
 // as of now this is directly used in the presentation layer, ig that's not how it works (according to clean arch 🤓☝️)
 fun getPinnedRepos(): List<GithubRepoDTO> = runBlocking {
     val pinnedRepos = mutableListOf<GithubRepoDTO>()
-    HttpClient.newHttpClient().send(
-        HttpRequest.newBuilder().GET().uri(URI.create("https://github.com/sakethpathike")).build(),
-        HttpResponse.BodyHandlers.ofString()
-    ).body().toString().let {
-        it.substringAfter("<div class=\"js-pinned-items-reorder-container\">").substringAfter("<ol")
-            .substringBefore("</ol>").split("<li").drop(1).forEach {
-                val pinnedItem =
-                    it.substringAfter("<div class=\"pinned-item-list-item-content\">").substringAfter("</a>")
+    HttpClient(CIO).use {
+        it.get("https://github.com/sakethpathike").bodyAsText().let {
+            it.substringAfter("<div class=\"js-pinned-items-reorder-container\">").substringAfter("<ol")
+                .substringBefore("</ol>").split("<li").drop(1).forEach {
+                    val pinnedItem =
+                        it.substringAfter("<div class=\"pinned-item-list-item-content\">").substringAfter("</a>")
 
-                val name = pinnedItem.substringAfter("<div class=\"d-flex width-full position-relative\">")
-                    .substringBefore("<p class=\"pinned-item-desc").substringAfter("<tool-tip").substringAfter("\">")
-                    .substringBefore("</tool-tip>").trim()
+                    val name = pinnedItem.substringAfter("<div class=\"d-flex width-full position-relative\">")
+                        .substringBefore("<p class=\"pinned-item-desc").substringAfter("<tool-tip")
+                        .substringAfter("\">").substringBefore("</tool-tip>").trim()
 
-                val description = pinnedItem.substringAfter("<p class=\"pinned-item-desc").substringAfter("\">")
-                    .substringBefore("</p>").trim()
+                    val description = pinnedItem.substringAfter("<p class=\"pinned-item-desc").substringAfter("\">")
+                        .substringBefore("</p>").trim()
 
-                val starCount = pinnedItem.substringAfter("<svg aria-label=\"stars\"").substringAfter("</svg>")
-                    .substringBefore("</a>").trim()
+                    val starCount = pinnedItem.substringAfter("<svg aria-label=\"stars\"").substringAfter("</svg>")
+                        .substringBefore("</a>").trim()
 
-                val programmingLanguage =
-                    pinnedItem.substringAfter("<span itemprop=\"programmingLanguage\">").substringBefore("</span>")
-                        .trim()
-                pinnedRepos.add(
-                    GithubRepoDTO(
-                        name = name,
-                        description = description,
-                        starCount = starCount,
-                        programmingLanguage = programmingLanguage,
-                        tags = tags.find {
-                            it.repoName == name
-                        }?.tags ?: emptyList()
+                    val programmingLanguage =
+                        pinnedItem.substringAfter("<span itemprop=\"programmingLanguage\">").substringBefore("</span>")
+                            .trim()
+                    pinnedRepos.add(
+                        GithubRepoDTO(
+                            name = name,
+                            description = description,
+                            starCount = starCount,
+                            programmingLanguage = programmingLanguage,
+                            tags = tags.find {
+                                it.repoName == name
+                            }?.tags ?: emptyList()
+                        )
                     )
-                )
-            }
+                }
+        }
     }
     pinnedRepos.toList()
 }
