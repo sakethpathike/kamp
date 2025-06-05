@@ -72,7 +72,7 @@ fun BODY.BlogPage(fileName: String) {
             fontWeight = FontWeight.Predefined.Thin
         )
         Spacer(modifier = Modifier.height(25.px))
-        MarkdownParser().mdToHtml(blogItem.file.readText().substringAfter("pubDatetime").substringAfter("---").trim())
+        MarkdownParser().mdToHtml(blogItem.rawFileContent.substringAfter("pubDatetime").substringAfter("---").trim())
             .forEach {
                 when (it) {
                     is MarkdownNode.CodeBlock -> {

@@ -58,8 +58,7 @@ object SnapshotManager {
         val gitLogFile = createTempFile()
         val lastCommitHash = HttpClient(CIO).use {
             it.get(urlString = "https://api.github.com/repos/sakethpathike/kamp/commits?sha=master&per_page=1")
-                .bodyAsText()
-                .substringAfter("\"sha\"").substringAfter("\"").substringBefore("\"").trim()
+                .bodyAsText().substringAfter("\"sha\"").substringAfter("\"").substringBefore("\"").trim()
         }
 
         try {
@@ -149,18 +148,27 @@ object SnapshotManager {
                         }
 
                         "images" -> {
-                            File(object {}.javaClass.getResource("/static/images")!!.toURI()).toPath()
-                                .listDirectoryEntries().filter { it.isRegularFile() }.forEach { currentImg ->
-                                    val filePath =
-                                        currentDirectoryEntryRef.pathString + "/" + currentImg.nameWithoutExtension + ".${currentImg.extension}"
-                                    Files.createFile(Path(path = filePath))
+                            val imageNames =
+                                object {}.javaClass.getResourceAsStream("/static/images/imagesNames.txt")?.use {
+                                    it.bufferedReader().use {
+                                        it.readText().split(",")
+                                    }
+                                } ?: emptyList()
 
-                                    currentImg.inputStream().use { inputStream ->
+                            imageNames.forEach { currentImgName ->
+                                val filePath =
+                                    currentDirectoryEntryRef.pathString + "/" + currentImgName.substringBefore(".") + ".${
+                                        currentImgName.substringAfter(".")
+                                    }"
+                                Files.createFile(Path(path = filePath))
+
+                                object {}.javaClass.getResourceAsStream("/static/images/$currentImgName")
+                                    ?.use { inputStream ->
                                         File(filePath).outputStream().use { outputStream ->
                                             inputStream.copyTo(outputStream)
                                         }
                                     }
-                                }
+                            }
                         }
                     }
                 }

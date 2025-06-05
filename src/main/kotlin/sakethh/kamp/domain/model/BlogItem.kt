@@ -1,16 +1,22 @@
 package sakethh.kamp.domain.model
 
-import java.io.File
-
 data class BlogItem(
-    val blogName: String, val fileName: String, val description: String, val pubDateTime: String, val file: File
+    val blogName: String,
+    val fileName: String,
+    val description: String,
+    val pubDateTime: String,
+    val rawFileContent: String
 ) {
     companion object {
-        private val javaClass = object {}.javaClass
 
         fun getBlogItem(fileName: String): BlogItem {
-            val blogFile = javaClass.getResource("/blog/$fileName.md")!!
-            val blogMeta = blogFile.readText().substringAfter("---").substringBefore("---").trim()
+            val blogFileContent = object {}.javaClass.getResourceAsStream("/blog/$fileName.md")!!.use {
+                it.bufferedReader().use {
+                    it.readText()
+                }
+            }
+
+            val blogMeta = blogFileContent.substringAfter("---").substringBefore("---").trim()
             val blogName = blogMeta.substringAfter("title:").substringBefore("\n").trim()
             val blogDescription = if (blogMeta.substringAfter("---").substringBefore("---").split("\n")[1].trim()
                     .startsWith("description")
@@ -22,7 +28,7 @@ data class BlogItem(
                 fileName = fileName,
                 description = blogDescription,
                 pubDateTime = blogPubDateTime,
-                file = File(blogFile.toURI())
+                rawFileContent = blogFileContent
             )
         }
     }

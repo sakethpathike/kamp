@@ -30,7 +30,11 @@ fun main() {
     ).start(wait = true)
 }
 
-val blogFileNames = listOf("synchronization-in-linkora")
+val blogFileNames: List<String> = object {}.javaClass.getResourceAsStream("/blog/blogNames.txt")?.use {
+    it.bufferedReader().use {
+        it.readText().split(",")
+    }
+} ?: emptyList()
 
 @OptIn(ExperimentalPathApi::class)
 fun Application.module() {
