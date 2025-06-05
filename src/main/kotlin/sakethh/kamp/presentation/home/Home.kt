@@ -42,7 +42,7 @@ fun BODY.Home() {
         Text(
             fontFamily = Constants.Inter,
             text = """
-                Hey, I'm Saketh. I build Android apps and backend systems using Kotlin and build tools I would use myself. 
+                Hey, I'm Saketh. I build Android apps, backend systems using Kotlin, and tools I would use myself.
             """.trimIndent(),
             fontWeight = FontWeight.Custom("400"),
             fontSize = 18.px,
