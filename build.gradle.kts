@@ -48,6 +48,9 @@ val generateImageNamesTxt = tasks.register("generateImageNamesTxt") {
     // but the first one only prints the line when the testTask is supposed to be executed.
     // The second one runs it when the build is configured, even if the task should not run.
     doLast {
+        if (imageNamesFile.exists().not()){
+            imageNamesFile.createNewFile()
+        }
         imageNamesFile.writeText(imageDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "images" }
             ?.joinToString { it.name } ?: "")
     }
@@ -61,6 +64,9 @@ val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
     val blogDir = file("src/main/resources/blog")
     val blogNamesFile = file("src/main/resources/blog/blogNames.txt")
     doLast {
+        if (blogNamesFile.exists().not()){
+            blogNamesFile.createNewFile()
+        }
         blogNamesFile.writeText(blogDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "blogNames" }
             ?.joinToString { it.nameWithoutExtension } ?: "")
     }
