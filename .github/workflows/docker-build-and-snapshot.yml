@@ -3,7 +3,7 @@ name: Build, Run, and Snapshot on Push to Master
 on:
   push:
     branches:
-      - test-actions
+      - master
 
 jobs:
   build-and-snapshot:
