@@ -101,14 +101,14 @@ object SnapshotManager {
 
                         "README.md" -> {
                             val updatedREADME = """
-                              This repo is entirely auto-generated from [kamp](https://github.com/sakethpathike/kamp) @${lastCommitHash}.
+                              This repo is entirely auto-generated from [kamp](https://github.com/sakethpathike/kamp)@${lastCommitHash}.
 
-- Blog markdown files from the kamp repo are converted to HTML using a custom markdown parser combined with [kapsule](https://github.com/sakethpathike/kapsule).
-- The generated HTML reflects kamp’s content exactly at that commit.
+- All HTML files are generated using [kapsule](https://github.com/sakethpathike/kapsule).
+- Blog markdown files from the kamp repo are converted to HTML using a custom markdown parser combined with kapsule.
+- The generated files on the master branch of this repo reflect exactly what kamp would serve @${lastCommitHash}.
 - This repo serves as a static snapshot mirror, pushed automatically by kamp-bot.
 
-> Note: The HTML includes JavaScript similar to the live kamp app, so dynamic UI behavior is expected.
-                            """.trimIndent()
+> Note: HTML files may include JavaScript similar to the live kamp app, so dynamic UI behavior is expected.""".trimIndent()
                             currentDirectoryEntry.writeText(updatedREADME.trim())
                         }
                     }
