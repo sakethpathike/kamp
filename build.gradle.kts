@@ -51,7 +51,7 @@ val generateImageNamesTxt = tasks.register("generateImageNamesTxt") {
         if (imageNamesFile.exists().not()){
             imageNamesFile.createNewFile()
         }
-        imageNamesFile.writeText(imageDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "images" }
+        imageNamesFile.writeText(imageDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "imagesNames" }
             ?.joinToString { it.name } ?: "")
     }
 }
