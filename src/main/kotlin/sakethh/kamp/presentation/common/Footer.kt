@@ -9,7 +9,7 @@ import sakethh.kapsule.utils.px
 
 fun FlowContent.Footer(
     text: String = """
-                    <a style = "color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp">This site</a> is built with <a style = "color: ${Colors.primaryDark}" href= "https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a> and served by <a style = "color: ${Colors.primaryDark}" href="https://ktor.io" target="_blank">Ktor</a>.
+            This site is built with <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a> and powered by <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp">kamp</a>.
                 """.trimIndent(),
     fontSize: String = 16.px,
     fontWeight: FontWeight = FontWeight.Predefined.SemiBold,
