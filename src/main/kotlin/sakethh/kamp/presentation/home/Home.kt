@@ -5,9 +5,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.html.BODY
-import kotlinx.html.FlowContent
-import kotlinx.html.onMouseDown
+import kotlinx.html.*
 import sakethh.kamp.domain.model.GithubRepoDTO
 import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.common.Header
@@ -18,6 +16,62 @@ import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
 
 fun BODY.Home() {
+    script(type = ScriptType.textJavaScript) {
+        unsafe {
+            +"""
+        document.addEventListener("DOMContentLoaded", async () => {
+            const starEls = document.querySelectorAll('[id$="|starCount"]');
+            const descEls = document.querySelectorAll('[id$="|desc"]');
+
+            const repoMap = new Map();
+            const userSet = new Set();
+            const orgSet = new Set();
+
+            [...starEls, ...descEls].forEach(el => {
+                const key = el.id.replace(/\|(starCount|desc)$/, "");
+                if (key.includes("/")) orgSet.add(key.split("/")[0]);
+                else userSet.add("sakethpathike");
+            });
+
+            for (const user of userSet) {
+                try {
+                    const res = await fetch(`https://api.github.com/users/${'$'}{user}/repos`);
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    data.forEach(r => repoMap.set(`${'$'}{user}/${'$'}{r.name}`, r));
+                } catch {}
+            }
+
+            for (const org of orgSet) {
+                try {
+                    const res = await fetch(`https://api.github.com/orgs/${'$'}{org}/repos`);
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    data.forEach(r => repoMap.set(`${'$'}{org}/${'$'}{r.name}`, r));
+                } catch {}
+            }
+
+            starEls.forEach(el => {
+                const key = el.id.replace(/\|starCount$/, "");
+                const full = key.includes("/") ? key : `sakethpathike/${'$'}{key}`;
+                const repo = repoMap.get(full);
+                if (repo) el.textContent = repo.stargazers_count;
+            });
+
+            descEls.forEach(el => {
+                const key = el.id.replace(/\|desc$/, "");
+                const full = key.includes("/") ? key : `sakethpathike/${'$'}{key}`;
+                const repo = repoMap.get(full);
+                if (repo && repo.description) el.textContent = repo.description;
+            });
+        });
+    """.trimIndent()
+        }
+    }
+
+
+
+
     Column(
         id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
@@ -154,7 +208,8 @@ private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
             text = githubRepoDTO.description,
             fontSize = 16.px,
             color = Colors.secondaryDark,
-            fontFamily = Constants.Inter
+            fontFamily = Constants.Inter,
+            id = githubRepoDTO.name + "|desc"
         )
         Spacer(modifier = Modifier.height(5.px))
         Row(
@@ -169,7 +224,8 @@ private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
                 text = githubRepoDTO.starCount,
                 fontFamily = Constants.Inter,
                 color = Colors.secondaryDark,
-                fontSize = 14.px
+                fontSize = 14.px,
+                id = githubRepoDTO.name + "|starCount"
             )
         }
         Spacer(modifier = Modifier.height(5.px))
