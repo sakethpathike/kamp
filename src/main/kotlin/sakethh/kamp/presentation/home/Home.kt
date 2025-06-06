@@ -271,7 +271,7 @@ private val tags = listOf(
         )
     ), Tags(
         repoName = "LinkoraApp/sync-server", tags = listOf(
-            Constants.Kotlin, Constants.KtorServer, Constants.Exposed, Constants.RealTimeSync
+            Constants.Kotlin, Constants.KtorServer, Constants.Backend, Constants.Exposed, Constants.RealTimeSync
         )
     ), Tags(
         repoName = "kapsule", tags = listOf(
@@ -280,6 +280,10 @@ private val tags = listOf(
     ), Tags(
         repoName = "JetSpacer", tags = listOf(
             Constants.Kotlin, Constants.ANDROID_SDK, Constants.JetpackCompose, Constants.KtorClient
+        )
+    ), Tags(
+        repoName = "kamp", tags = listOf(
+            Constants.Kotlin, Constants.KtorServer, Constants.Backend, Constants.Markdown, Constants.GitHubPages
         )
     )
 )
