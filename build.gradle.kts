@@ -42,7 +42,7 @@ dependencies {
 }
 
 // because there should be a way to get file names when this server runs via a jar
-val generateImageNamesTxt = tasks.register("generateImageNamesTxt") {
+val generateImageNamesFile = tasks.register("generateImageNamesTxt") {
     val imageDir = file("src/main/resources/static/images")
     val imageNamesFile = file("src/main/resources/static/images/imagesNames.txt")
 
@@ -134,9 +134,13 @@ val generateOGImages by tasks.registering {
     }
 }
 
+// generate the images first, then the image names file
+generateImageNamesFile.configure {
+    dependsOn(generateOGImages)
+}
 
 tasks.named<ProcessResources>("processResources") {
     dependsOn(generateBlogFileNamesTxt)
     dependsOn(generateOGImages)
-    dependsOn(generateImageNamesTxt)
+    dependsOn(generateImageNamesFile)
 }
