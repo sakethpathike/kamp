@@ -22,11 +22,12 @@ import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.snapshot.SnapshotManager
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.px
+import java.net.Inet4Address
 import kotlin.io.path.ExperimentalPathApi
 
 fun main() {
     embeddedServer(
-        Netty, port = 8080, host = "0.0.0.0", module = Application::module
+        Netty, port = 8080, host = Inet4Address.getLocalHost().hostAddress, module = Application::module
     ).start(wait = true)
 }
 
@@ -105,15 +106,12 @@ fun HTML.KampSurface(content: BODY.() -> Unit) {
                 +"""
       document.addEventListener("DOMContentLoaded", () => {
         const current_page = document.getElementById("current_page");
-        const footerOnBlogLists = document.getElementById("footerOnBlogLists");
         const isMobile = window.matchMedia("(max-width: 767px)").matches;
         
         if(isMobile){
             current_page.style.boxSizing = "border-box";
             current_page.style.padding = "15px";
             current_page.style.width = "99.25%";
-            footerOnBlogLists.style.padding = "15px";
-            footerOnBlogLists.style.width = "99.25%";
         } else {            
             current_page.style.transform = "scale(1.2)";
             current_page.style.transformOrigin = "top left";
