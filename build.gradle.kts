@@ -137,6 +137,6 @@ val generateOGImages by tasks.registering {
 
 tasks.named<ProcessResources>("processResources") {
     dependsOn(generateBlogFileNamesTxt)
-    dependsOn(generateImageNamesTxt)
     dependsOn(generateOGImages)
+    dependsOn(generateImageNamesTxt)
 }
