@@ -6,7 +6,7 @@ data class MetaTags(
     companion object {
         fun HomePage(deployTarget: DeployTarget): MetaTags {
             return MetaTags(
-                ogImageSrc = "",
+                ogImageSrc = "/image/ogImage-home.png",
                 ogTitle = "Saketh Pathike ${Typography.bullet} Portfolio ${Typography.bullet} Site",
                 ogDescription = "TODO()",
                 deployTarget = deployTarget,
@@ -16,7 +16,7 @@ data class MetaTags(
 
         fun BlogListPage(deployTarget: DeployTarget): MetaTags {
             return MetaTags(
-                ogImageSrc = "",
+                ogImageSrc = "/image/ogImage-blogList.png",
                 ogTitle = "Blogs ${Typography.bullet} Saketh Pathike",
                 ogDescription = "",
                 pageType = PageType.Website,
@@ -27,7 +27,7 @@ data class MetaTags(
         fun BlogPage(fileName: String, deployTarget: DeployTarget): MetaTags {
             return BlogItem.getBlogItem(fileName).run {
                 MetaTags(
-                    ogImageSrc = "TODO()",
+                    ogImageSrc = "/image/ogImage-${fileName}.png",
                     ogTitle = "${this.blogName} ${Typography.bullet} Saketh Pathike",
                     ogDescription = "",
                     pageType = PageType.Article,

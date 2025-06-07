@@ -1,3 +1,9 @@
+import java.awt.Color
+import java.awt.Font
+import java.awt.RenderingHints
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+
 val kotlin_version: String by project
 val logback_version: String by project
 
@@ -48,7 +54,7 @@ val generateImageNamesTxt = tasks.register("generateImageNamesTxt") {
     // but the first one only prints the line when the testTask is supposed to be executed.
     // The second one runs it when the build is configured, even if the task should not run.
     doLast {
-        if (imageNamesFile.exists().not()){
+        if (imageNamesFile.exists().not()) {
             imageNamesFile.createNewFile()
         }
         imageNamesFile.writeText(imageDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "imagesNames" }
@@ -56,15 +62,11 @@ val generateImageNamesTxt = tasks.register("generateImageNamesTxt") {
     }
 }
 
-tasks.named<ProcessResources>("processResources") {
-    dependsOn(generateImageNamesTxt)
-}
-
 val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
     val blogDir = file("src/main/resources/blog")
     val blogNamesFile = file("src/main/resources/blog/blogNames.txt")
     doLast {
-        if (blogNamesFile.exists().not()){
+        if (blogNamesFile.exists().not()) {
             blogNamesFile.createNewFile()
         }
         blogNamesFile.writeText(blogDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "blogNames" }
@@ -72,6 +74,69 @@ val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
     }
 }
 
+val generateOGImages by tasks.registering {
+    doLast {
+        val blogDir = file("src/main/resources/blog")
+        blogDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "blogNames" }?.forEach { blogFile ->
+            val scale = 3
+            val imageWidth = 1200 * scale
+            val imageHeight = 630 * scale
+            val bufferedImage = BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB)
+            val graphics2D = bufferedImage.createGraphics()
+
+            // for background
+            graphics2D.color = Color.decode("#131318")
+
+            graphics2D.fillRect(0, 0, imageWidth, imageHeight)
+
+            // kamp logo
+            graphics2D.drawImage(
+                ImageIO.read(file("src/main/resources/static/images/kamp-og.png")), 225, 300, 355, 364, null
+            )
+
+            // for text(s)
+            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+            graphics2D.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
+            )
+            graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+            graphics2D.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
+
+            graphics2D.font = Font("Inter", Font.BOLD, 180)
+
+            // for title
+            graphics2D.color = Color.decode("#BFC2FF")
+
+            graphics2D.drawString(
+                blogFile?.readText()?.substringAfter("title: ")?.substringBefore("\n")?.trim() ?: "",
+                225,
+                imageHeight - 600
+            )
+
+            // below title
+            graphics2D.color = Color.decode("#C5C4DD")
+            graphics2D.font = Font(
+                "Inter", Font.PLAIN, 75
+            )
+
+            graphics2D.drawString(
+                "Saketh Pathike", 225, imageHeight - 440
+            )
+
+            graphics2D.dispose()
+
+            ImageIO.write(
+                bufferedImage,
+                "png",
+                file("src/main/resources/static/images/ogImage-${blogFile.nameWithoutExtension}.png")
+            )
+        }
+    }
+}
+
+
 tasks.named<ProcessResources>("processResources") {
     dependsOn(generateBlogFileNamesTxt)
+    dependsOn(generateImageNamesTxt)
+    dependsOn(generateOGImages)
 }
