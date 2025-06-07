@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import sakethh.kamp.domain.model.DeployTarget
+import sakethh.kamp.domain.model.MetaTags
 import sakethh.kamp.domain.model.Route
 import sakethh.kamp.presentation.blog.BlogList
 import sakethh.kamp.presentation.blog.BlogPage
@@ -56,21 +58,27 @@ fun Application.module() {
         }
     }
     val allRoutes = mutableListOf(
-        Route(route = "/", content = {
-            with(it) {
-                this.Home()
-            }
-        }),
-        Route(route = "/blog", content = {
-            with(it) {
-                this.BlogList()
-            }
-        }),
+        Route(
+            route = "/", content = {
+                with(it) {
+                    this.Home()
+                }
+            }, metaTags = MetaTags.HomePage(deployTarget = DeployTarget.Koyeb)
+        ),
+        Route(
+            route = "/blog", content = {
+                with(it) {
+                    this.BlogList()
+                }
+            }, metaTags = MetaTags.BlogListPage(deployTarget = DeployTarget.Koyeb)
+        ),
     )
     blogFileNames.forEach { fileName ->
         allRoutes.add(
             Route(
-                route = "/blog/${fileName}", content = {
+                route = "/blog/${fileName}",
+                metaTags = MetaTags.BlogPage(fileName = fileName, deployTarget = DeployTarget.Koyeb),
+                content = {
                     with(it) {
                         BlogPage(fileName)
                     }
@@ -89,7 +97,7 @@ fun Application.module() {
         allRoutes.forEach { currentRoute ->
             get(currentRoute.route) {
                 call.respondText(contentType = ContentType.Text.Html, text = createHTML().html {
-                    KampSurface {
+                    KampSurface(metaTags = currentRoute.metaTags) {
                         currentRoute.content(this)
                     }
                 })
@@ -98,7 +106,7 @@ fun Application.module() {
     }
 }
 
-fun HTML.KampSurface(content: BODY.() -> Unit) {
+fun HTML.KampSurface(metaTags: MetaTags, content: BODY.() -> Unit) {
     Surface(
         onTheBodyElement = {
         script(type = ScriptType.textJavaScript) {
@@ -141,11 +149,34 @@ fun HTML.KampSurface(content: BODY.() -> Unit) {
                     """.trimIndent()
     ), onTheHeadElement = {
         unsafe {
-            raw(
-                """
+
+            +"""
+                <link rel="icon" href="/images/kamp.png" type="image/png" />
+            """.trimIndent()
+
+            +"""
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 """.trimIndent()
-            )
+        }
+        unsafe {
+            +"""
+                <title>${metaTags.ogTitle.trim()}</title>
+                  """.trimIndent()
+
+
+            +"""
+            <meta property="og:title" content="${metaTags.ogTitle.trim()}" />
+            <meta property="og:type" content="${metaTags.pageType.type}" />
+            <meta property="og:image" content="${(metaTags.deployTarget.baseUrl + metaTags.ogImageSrc).trim()}" />
+            <meta property="og:description" content="${metaTags.ogDescription.trim()}" />
+            <meta property="og:site_name" content="kamp" />
+            
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content="${metaTags.ogTitle.trim()}" />
+            <meta name="twitter:description" content="${metaTags.ogDescription.trim()}" />
+            <meta name="twitter:image" content="${(metaTags.deployTarget.baseUrl + metaTags.ogImageSrc).trim()}" />
+            <meta name="twitter:site" content="@sakethpathike" />
+                """.trimIndent()
         }
     }) {
         content()

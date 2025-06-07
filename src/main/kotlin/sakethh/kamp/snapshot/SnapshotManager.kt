@@ -8,6 +8,8 @@ import kotlinx.html.html
 import kotlinx.html.stream.createHTML
 import sakethh.kamp.KampSurface
 import sakethh.kamp.blogFileNames
+import sakethh.kamp.domain.model.DeployTarget
+import sakethh.kamp.domain.model.MetaTags
 import sakethh.kamp.presentation.blog.BlogList
 import sakethh.kamp.presentation.blog.BlogPage
 import sakethh.kamp.presentation.home.Home
@@ -39,17 +41,25 @@ object SnapshotManager {
         isAnySnapshotProcessGoingOn = true
 
         val homeScreenContent = createHTML().html {
-            KampSurface { Home() }
+            KampSurface(
+                metaTags = MetaTags.HomePage(deployTarget = DeployTarget.GithubPages)
+            ) { Home() }
         }
 
         val blogListContent = createHTML().html {
-            KampSurface { BlogList() }
+            KampSurface(
+                metaTags = MetaTags.BlogListPage(deployTarget = DeployTarget.GithubPages)
+            ) { BlogList() }
         }
 
         val allBlogs = mutableListOf<Pair<FileName, FileContent>>()
 
         blogFileNames.forEach { fileName ->
-            val fileContent = createHTML().html { KampSurface { BlogPage(fileName = fileName) } }
+            val fileContent = createHTML().html {
+                KampSurface(
+                    metaTags = MetaTags.BlogPage(fileName = fileName, deployTarget = DeployTarget.GithubPages)
+                ) { BlogPage(fileName = fileName) }
+            }
             allBlogs.add(Pair(first = fileName, second = fileContent))
         }
 
@@ -156,8 +166,7 @@ object SnapshotManager {
                                 } ?: emptyList()
 
                             imageNames.map { it.trim() }.forEach { currentImgName ->
-                                val filePath =
-                                    currentDirectoryEntryRef.pathString + "/" + currentImgName
+                                val filePath = currentDirectoryEntryRef.pathString + "/" + currentImgName
 
                                 object {}.javaClass.getResourceAsStream("/static/images/$currentImgName")
                                     ?.use { inputStream ->
