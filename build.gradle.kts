@@ -74,7 +74,7 @@ val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
     }
 }
 
-val generateOGImages by tasks.registering {
+val generateOGImagesForBlogs by tasks.registering {
     doLast {
         val blogDir = file("src/main/resources/blog")
         val dmSansFont = Font.createFont(Font.TRUETYPE_FONT, File("src/main/resources/fonts/dm_sans.ttf"))
@@ -92,7 +92,7 @@ val generateOGImages by tasks.registering {
 
             // kamp logo
             graphics2D.drawImage(
-                ImageIO.read(file("src/main/resources/static/images/kamp-og.png")), 225, 300, 355, 364, null
+                ImageIO.read(file("src/main/resources/static/images/kamp-og.png")), 265, 300, 355, 364, null
             )
 
             // for text(s)
@@ -114,9 +114,7 @@ val generateOGImages by tasks.registering {
             }?.map { it.trim() }?.let {
                 it.forEachIndexed { index, string ->
                     graphics2D.drawString(
-                        string, 225, (imageHeight - (initialDeductionOfHeight - (300 * index))).also {
-                            println(it)
-                        }
+                        string, 265, (imageHeight - (initialDeductionOfHeight - (300 * index)))
                     )
                 }
             }
@@ -127,7 +125,7 @@ val generateOGImages by tasks.registering {
             graphics2D.font = dmSansFont.deriveFont(Font.PLAIN, 75f)
 
             graphics2D.drawString(
-                "Saketh Pathike", 225, imageHeight - 400
+                "Saketh Pathike", 265, imageHeight - 400
             )
 
             graphics2D.dispose()
@@ -137,17 +135,19 @@ val generateOGImages by tasks.registering {
                 "png",
                 file("src/main/resources/static/images/ogImage-${blogFile.nameWithoutExtension}.png")
             )
+
+            bufferedImage.flush()
         }
     }
 }
 
 // generate the images first, then the image names file
 generateImageNamesFile.configure {
-    dependsOn(generateOGImages)
+    dependsOn(generateOGImagesForBlogs)
 }
 
 tasks.named<ProcessResources>("processResources") {
     dependsOn(generateBlogFileNamesTxt)
-    dependsOn(generateOGImages)
+    dependsOn(generateOGImagesForBlogs)
     dependsOn(generateImageNamesFile)
 }
