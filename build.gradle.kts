@@ -92,7 +92,7 @@ val generateOGImagesForBlogs by tasks.registering {
 
             // kamp logo
             graphics2D.drawImage(
-                ImageIO.read(file("src/main/resources/static/images/kamp-og.png")), 265, 300, 355, 364, null
+                ImageIO.read(file("src/main/resources/static/images/kamp-og.png")), 225, 300, 355, 364, null
             )
 
             // for text(s)
@@ -114,7 +114,7 @@ val generateOGImagesForBlogs by tasks.registering {
             }?.map { it.trim() }?.let {
                 it.forEachIndexed { index, string ->
                     graphics2D.drawString(
-                        string, 265, (imageHeight - (initialDeductionOfHeight - (300 * index)))
+                        string, 225, (imageHeight - (initialDeductionOfHeight - (300 * index)))
                     )
                 }
             }
@@ -125,7 +125,7 @@ val generateOGImagesForBlogs by tasks.registering {
             graphics2D.font = dmSansFont.deriveFont(Font.PLAIN, 75f)
 
             graphics2D.drawString(
-                "Saketh Pathike", 265, imageHeight - 400
+                "Saketh Pathike", 225, imageHeight - 400
             )
 
             graphics2D.dispose()
