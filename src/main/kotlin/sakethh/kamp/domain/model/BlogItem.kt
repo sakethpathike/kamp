@@ -17,7 +17,7 @@ data class BlogItem(
             }
 
             val blogMeta = blogFileContent.substringAfter("---").substringBefore("---").trim()
-            val blogName = blogMeta.substringAfter("title:").substringBefore("\n").trim()
+            val blogName = blogMeta.substringAfter("title:").substringBefore("\n").trim().replace(oldValue = "#BREAK#", newValue = "")
             val blogDescription = if (blogMeta.substringAfter("---").substringBefore("---").split("\n")[1].trim()
                     .startsWith("description")
             ) blogMeta.substringAfter("description:").substringBefore("\n").trim() else ""

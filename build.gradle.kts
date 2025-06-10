@@ -77,6 +77,7 @@ val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
 val generateOGImages by tasks.registering {
     doLast {
         val blogDir = file("src/main/resources/blog")
+        val dmSansFont = Font.createFont(Font.TRUETYPE_FONT, File("src/main/resources/fonts/dm_sans.ttf"))
         blogDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "blogNames" }?.forEach { blogFile ->
             val scale = 3
             val imageWidth = 1200 * scale
@@ -102,25 +103,31 @@ val generateOGImages by tasks.registering {
             graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
             graphics2D.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
 
-            graphics2D.font = Font("Inter", Font.BOLD, 180)
+            graphics2D.font = dmSansFont.deriveFont(Font.BOLD, 265f)
 
             // for title
             graphics2D.color = Color.decode("#BFC2FF")
 
-            graphics2D.drawString(
-                blogFile?.readText()?.substringAfter("title: ")?.substringBefore("\n")?.trim() ?: "",
-                225,
-                imageHeight - 600
-            )
+            var initialDeductionOfHeight = 0
+            blogFile?.readText()?.substringAfter("title: ")?.substringBefore("\n")?.trim()?.split("#BREAK#")?.also {
+                initialDeductionOfHeight = 350 + (if (it.size > 1)  (250 * (it.size)) + (25 + it.size)  else 250)
+            }?.map { it.trim() }?.let {
+                it.forEachIndexed { index, string ->
+                    graphics2D.drawString(
+                        string, 225, (imageHeight - (initialDeductionOfHeight - (300 * index))).also {
+                            println(it)
+                        }
+                    )
+                }
+            }
+
 
             // below title
             graphics2D.color = Color.decode("#C5C4DD")
-            graphics2D.font = Font(
-                "Inter", Font.PLAIN, 75
-            )
+            graphics2D.font = dmSansFont.deriveFont(Font.PLAIN, 75f)
 
             graphics2D.drawString(
-                "Saketh Pathike", 225, imageHeight - 440
+                "Saketh Pathike", 225, imageHeight - 400
             )
 
             graphics2D.dispose()
