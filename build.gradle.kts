@@ -124,10 +124,6 @@ val generateOGImagesForBlogs by tasks.registering {
             graphics2D.color = Color.decode("#C5C4DD")
             graphics2D.font = dmSansFont.deriveFont(Font.PLAIN, 75f)
 
-            graphics2D.drawString(
-                "Saketh Pathike", 225, imageHeight - 400
-            )
-
             graphics2D.dispose()
 
             ImageIO.write(
