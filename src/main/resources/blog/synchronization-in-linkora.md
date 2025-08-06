@@ -1,5 +1,6 @@
 ---
 title: Synchronization #BREAK# in Linkora
+description: Offline-First Two-Way Sync with Conflict Resolution That Just Works.
 pubDatetime: Feb 16, 2025 01:05 PM IST 
 ---
 
