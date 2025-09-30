@@ -86,7 +86,7 @@ fun BODY.Home() {
         )
         Spacer(modifier = Modifier.height(5.px))
         Text(
-            text = "Android Developer • Backend & Kotlin Multiplatform • B.Tech CSE Student",
+            text = "Android & Kotlin Multiplatform Developer • Backend • B.Tech CSE Student",
             fontWeight = FontWeight.Custom("600"),
             fontSize = 18.px,
             fontFamily = Constants.Inter,
@@ -96,7 +96,7 @@ fun BODY.Home() {
         Text(
             fontFamily = Constants.Inter,
             text = """
-                Hey, I'm Saketh. I build Android apps, backend systems using Kotlin, and tools I would use myself.
+               Hey, I'm Saketh. I build Android apps, Kotlin Multiplatform projects, backend with Kotlin, and tools I'd use myself.
             """.trimIndent(),
             fontWeight = FontWeight.Custom("400"),
             fontSize = 18.px,
@@ -107,22 +107,13 @@ fun BODY.Home() {
         Text(
             fontFamily = Constants.Inter,
             text = """
-Fun fact: you’re currently reading this thanks to my custom backend system called <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a> and also <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a>, which generated the HTML that you are reading these words on.            """.trimIndent(),
+Fun fact: you're currently reading this thanks to <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a>, my custom Ktor backend that powers this site, and <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a>, which generates the HTML.            """.trimIndent(),
             fontWeight = FontWeight.Custom("400"),
             fontSize = 18.px,
             color = Colors.secondaryDark,
             modifier = Modifier.custom("line-height:1.4; ")
         )
         Spacer(modifier = Modifier.height(4.px))
-        Text(
-            fontFamily = Constants.Inter,
-            text = """
- I'm 20, and I usually overthink, but hey, the fact that you can read this means the wheels work.           """.trimIndent(),
-            fontWeight = FontWeight.Custom("400"),
-            fontSize = 18.px,
-            color = Colors.secondaryDark,
-            modifier = Modifier.custom("line-height:1.4; ")
-        )
         Row(
             verticalAlignment = VerticalAlignment.Center, horizontalAlignment = HorizontalAlignment.Center
         ) {
@@ -331,7 +322,7 @@ private val tags = listOf(
         )
     ), Tags(
         repoName = "kapsule", tags = listOf(
-            Constants.Kotlin, Constants.KMP, Constants.kotlinxHtml, Constants.KT_DSL
+            Constants.Kotlin, Constants.KMP, Constants.kotlinxHtml, Constants.KT_DSL, Constants.MavenCentral
         )
     ), Tags(
         repoName = "JetSpacer", tags = listOf(
@@ -340,6 +331,16 @@ private val tags = listOf(
     ), Tags(
         repoName = "kamp", tags = listOf(
             Constants.Kotlin, Constants.KtorServer, Constants.Backend, Constants.Markdown, Constants.GitHubPages
+        )
+    ),
+    Tags(
+        repoName = "genesis",
+        tags = listOf(
+            Constants.Kotlin,
+            Constants.SSG,
+            Constants.CLI,
+            Constants.KotlinScripting,
+            Constants.MavenCentral
         )
     )
 )
