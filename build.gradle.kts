@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.awt.Color
 import java.awt.Font
 import java.awt.RenderingHints
@@ -146,4 +147,13 @@ tasks.named<ProcessResources>("processResources") {
     dependsOn(generateBlogFileNamesTxt)
     dependsOn(generateOGImagesForBlogs)
     dependsOn(generateImageNamesFile)
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_23)
 }
