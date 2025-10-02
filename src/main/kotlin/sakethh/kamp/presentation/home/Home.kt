@@ -78,7 +78,7 @@ fun BODY.Home() {
         Header(selectedComponent = "home")
         Spacer(modifier = Modifier.height(25.px))
         Text(
-            text = "Saketh Pathike",
+            text = "Saketh",
             fontWeight = FontWeight.Custom("900"),
             fontSize = 26.px,
             fontFamily = Constants.Inter,
@@ -86,7 +86,7 @@ fun BODY.Home() {
         )
         Spacer(modifier = Modifier.height(5.px))
         Text(
-            text = "Android & Kotlin Multiplatform Developer • Backend • B.Tech CSE Student",
+            text = "Android & Kotlin Multiplatform Developer",
             fontWeight = FontWeight.Custom("600"),
             fontSize = 18.px,
             fontFamily = Constants.Inter,
@@ -96,7 +96,7 @@ fun BODY.Home() {
         Text(
             fontFamily = Constants.Inter,
             text = """
-               Hey, I'm Saketh. I build Android apps, Kotlin Multiplatform projects, backend with Kotlin, and tools I'd use myself.
+               Hey, I'm Saketh. I build Android apps and Kotlin Multiplatform projects.
             """.trimIndent(),
             fontWeight = FontWeight.Custom("400"),
             fontSize = 18.px,
@@ -107,7 +107,7 @@ fun BODY.Home() {
         Text(
             fontFamily = Constants.Inter,
             text = """
-Fun fact: you're currently reading this thanks to <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a>, my custom Ktor backend that powers this site, and <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a>, which generates the HTML.            """.trimIndent(),
+            I build my own tools when I need them, like <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a> and <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a>, which power this site.        """.trimIndent(),
             fontWeight = FontWeight.Custom("400"),
             fontSize = 18.px,
             color = Colors.secondaryDark,
@@ -125,13 +125,19 @@ Fun fact: you're currently reading this thanks to <a style="color: ${Colors.prim
             )
         }
         Text(
-            text = "Profiles\n& Contact",
-            fontWeight = FontWeight.Predefined.SemiBold,
+            text = "Contact",
+            fontWeight = FontWeight.Predefined.Bold,
             color = Colors.primaryDark,
             fontSize = 24.px,
             fontFamily = Constants.Inter
         )
         Spacer(modifier = Modifier.height(10.px))
+        ContactItem(
+            text = "<a style=\"color: ${Colors.primaryDark}\" href=\"mailto:sakethpathike@gmail.com\" target=\"_blank\">sakethpathike@gmail.com</a>",
+            fontWeight = FontWeight.Predefined.SemiBold
+        )
+        Spacer(modifier = Modifier.height(10.px))
+
         Row(
             modifier = Modifier.display(Display.Flex).custom(
                 """
@@ -139,19 +145,16 @@ Fun fact: you're currently reading this thanks to <a style="color: ${Colors.prim
         """.trimIndent()
             )
         ) {
-            ContactItem(imageSrc = "/images/github.svg", string = "Github", url = "https://github.com/sakethpathike")
-            ContactItem(imageSrc = "mail_outline", string = "Email", url = "mailto:sakethpathike@gmail.com")
-            ContactItem(imageSrc = "/images/twitter.svg", string = "Twitter/X", url = "https://x.com/sakethpathike")
-            ContactItem(
-                imageSrc = "/images/linkedin.svg",
-                string = "LinkedIn",
-                url = "https://www.linkedin.com/in/sakethpathike/"
-            )
+            ContactItem(text = "<a style=\"color: ${Colors.primaryDark}\" href=\"https://github.com/sakethpathike\" target=\"_blank\">Github</a>")
+            ContactItem(text = Typography.bullet.toString())
+            ContactItem(text = "<a style=\"color: ${Colors.primaryDark}\" href=\"https://www.linkedin.com/in/sakethpathike/\" target=\"_blank\">LinkedIn</a>")
+            ContactItem(text = Typography.bullet.toString())
+            ContactItem(text = "<a style=\"color: ${Colors.primaryDark}\" href=\"https://x.com/sakethpathike/\" target=\"_blank\">Twitter/X</a>")
         }
         Spacer(modifier = Modifier.height(20.px))
         Text(
             text = "Projects",
-            fontWeight = FontWeight.Predefined.SemiBold,
+            fontWeight = FontWeight.Predefined.Bold,
             color = Colors.primaryDark,
             fontSize = 24.px,
             fontFamily = Constants.Inter
@@ -241,26 +244,19 @@ private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
     }
 }
 
-private fun FlowContent.ContactItem(imageSrc: String, string: String, url: String) {
-    Row(
-        horizontalAlignment = HorizontalAlignment.Center,
-        modifier = Modifier.blockSelection().cursor(Cursor.Pointer).backgroundColor(Colors.primaryContainerDark)
-            .clip(Shape.RoundedRectangle(1.5.px)).color(Colors.onPrimaryContainerDark).padding(6.9.px)
-            .width("fit-content"),
-        onThisElement = {
-            val func = "window.open(\"${url}\", \"_blank\");"
-            onMouseDown = func
-        }) {
-        if (imageSrc.startsWith("/")) {
-            Image(src = imageSrc, modifier = Modifier.size(20.px))
-        } else {
-            MaterialIcon(iconCode = imageSrc, modifier = Modifier.fontSize(20.px))
-        }
-        Spacer(modifier = Modifier.width(5.px))
-        Text(
-            text = string, fontWeight = FontWeight.Predefined.Medium, fontFamily = Constants.Inter, fontSize = 16.px
-        )
-    }
+private fun FlowContent.ContactItem(
+    text: String,
+    fontWeight: FontWeight = FontWeight.Predefined.Medium,
+    fontSize: String = 18.px
+) {
+    Text(
+        fontFamily = Constants.Inter,
+        text = text,
+        fontWeight = fontWeight,
+        fontSize = fontSize,
+        color = Colors.secondaryDark,
+        modifier = Modifier.custom("line-height:1.4; ")
+    )
 }
 
 // as of now this is directly used in the presentation layer, ig that's not how it works (according to clean arch 🤓☝️)
@@ -332,15 +328,9 @@ private val tags = listOf(
         repoName = "kamp", tags = listOf(
             Constants.Kotlin, Constants.KtorServer, Constants.Backend, Constants.Markdown, Constants.GitHubPages
         )
-    ),
-    Tags(
-        repoName = "genesis",
-        tags = listOf(
-            Constants.Kotlin,
-            Constants.SSG,
-            Constants.CLI,
-            Constants.KotlinScripting,
-            Constants.MavenCentral
+    ), Tags(
+        repoName = "genesis", tags = listOf(
+            Constants.Kotlin, Constants.SSG, Constants.CLI, Constants.KotlinScripting, Constants.MavenCentral
         )
     )
 )

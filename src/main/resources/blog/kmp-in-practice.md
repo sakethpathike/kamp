@@ -78,7 +78,7 @@ If you are dealing with composables or classes or an interface implementation on
 
 I never tried other multiplatform frameworks/tools, but I think this is the simplest yet finest way to deal with platform-level implementations, although most of the commonly used libraries like Coil, Ktor, koin, Room, and material components (via Compose multiplatform) already support KMP, but there may be cases where you have to stick with platform-level APIs, and I think KMP does it most finely.
 
-### The Nitpicks
+## The Nitpicks
 
 Now the nitpick I have here has to do more with CMP than KMP: CMP is maintained by JetBrains, which is not on the latest version regularly with respect to the upstream version, and some components like material expressive aren't yet possible to use directly in the common codebase, but again, this is just a nitpick.
 

@@ -35,7 +35,17 @@ fun BODY.BlogList() {
         id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
     ) {
         Header(selectedComponent = "blog")
-        Spacer(modifier = Modifier.height(25.px))
+        Spacer(modifier = Modifier.height(15.px))
+        Text(
+            text = """
+                The following posts are parsed using a custom Markdown parser based on the <a target="_blank" style = "color: ${Colors.primaryDark}" href="https://spec.commonmark.org/0.31.2/#appendix-a-parsing-strategy">CommonMark spec</a>.
+            """.trimIndent(),
+            fontSize = 14.px,
+            fontFamily = Constants.Inter,
+            color = Colors.primaryDark,
+            fontWeight = FontWeight.Predefined.Thin
+        )
+        Spacer(modifier = Modifier.height(15.px))
         blogFileNames.forEach {
             BlogItem(BlogItem.getBlogItem(it))
         }
