@@ -10,6 +10,7 @@ import sakethh.kamp.blogFileNames
 import sakethh.kamp.domain.model.BlogItem
 import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.common.Header
+import sakethh.kamp.presentation.home.pageMargin
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kapsule.*
@@ -32,7 +33,7 @@ fun BODY.BlogList() {
         }
     }
     Column(
-        id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
+        id = "current_page", modifier = Modifier.pageMargin().fillMaxWidth(0.7)
     ) {
         Header(selectedComponent = "blog")
         Spacer(modifier = Modifier.height(15.px))

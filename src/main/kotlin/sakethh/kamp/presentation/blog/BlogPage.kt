@@ -9,6 +9,7 @@ import sakethh.kamp.domain.model.markdown.InlineNode
 import sakethh.kamp.domain.model.markdown.MarkdownNode
 import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.common.Header
+import sakethh.kamp.presentation.home.pageMargin
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
@@ -19,7 +20,7 @@ import java.util.*
 
 fun BODY.BlogPage(fileName: String) {
     Column(
-        id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
+        id = "current_page", modifier = Modifier.pageMargin().fillMaxWidth(0.7)
     ) {
         Header(selectedComponent = "blog")
         Spacer(modifier = Modifier.height(25.px))

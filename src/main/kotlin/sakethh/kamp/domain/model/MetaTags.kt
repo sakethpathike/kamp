@@ -7,8 +7,8 @@ data class MetaTags(
         fun HomePage(deployTarget: DeployTarget): MetaTags {
             return MetaTags(
                 ogImageSrc = "/images/ogImage-home.png",
-                ogTitle = "Saketh Pathike ${Typography.bullet} Portfolio ${Typography.bullet} Site",
-                ogDescription = "TODO()",
+                ogTitle = "Saketh Pathike | Android & Kotlin Multiplatform Developer",
+                ogDescription = "",
                 deployTarget = deployTarget,
                 pageType = PageType.Website
             )

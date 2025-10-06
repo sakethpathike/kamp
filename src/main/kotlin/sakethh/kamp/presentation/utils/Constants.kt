@@ -2,6 +2,8 @@ package sakethh.kamp.presentation.utils
 
 object Constants {
     const val Inter = "Inter"
+    const val S_REGULAR_Font = "s_font_reg"
+    const val S_CURSIVE_Font = "s_font_cur"
     const val JetBrainsMono = "JetBrains Mono"
     const val KMP = "Kotlin Multiplatform"
     const val CMP = "Compose Multiplatform"

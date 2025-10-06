@@ -69,30 +69,12 @@ fun BODY.Home() {
         }
     }
 
-
-
-
     Column(
-        id = "current_page", modifier = Modifier.padding(50.px).fillMaxWidth(0.7)
+        id = "current_page",
+        modifier = Modifier.pageMargin().fillMaxWidth(0.7)
     ) {
         Header(selectedComponent = "home")
-        Spacer(modifier = Modifier.height(25.px))
-        Text(
-            text = "Saketh",
-            fontWeight = FontWeight.Custom("900"),
-            fontSize = 26.px,
-            fontFamily = Constants.Inter,
-            color = Colors.primaryDark
-        )
-        Spacer(modifier = Modifier.height(5.px))
-        Text(
-            text = "Android & Kotlin Multiplatform Developer",
-            fontWeight = FontWeight.Custom("600"),
-            fontSize = 18.px,
-            fontFamily = Constants.Inter,
-            color = Colors.secondaryDark
-        )
-        Spacer(modifier = Modifier.height(10.px))
+        Spacer(modifier = Modifier.height(20.px))
         Text(
             fontFamily = Constants.Inter,
             text = """
@@ -244,10 +226,10 @@ private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
     }
 }
 
+fun Modifier.pageMargin() = this.margin(start = 50.px, end = 50.px, top = 45.px, bottom = 50.px)
+
 private fun FlowContent.ContactItem(
-    text: String,
-    fontWeight: FontWeight = FontWeight.Predefined.Medium,
-    fontSize: String = 18.px
+    text: String, fontWeight: FontWeight = FontWeight.Predefined.Medium, fontSize: String = 18.px
 ) {
     Text(
         fontFamily = Constants.Inter,

@@ -118,6 +118,7 @@ fun HTML.KampSurface(metaTags: MetaTags, content: BODY.() -> Unit) {
         
         if(isMobile){
             current_page.style.boxSizing = "border-box";
+            current_page.style.margin = "0px";
             current_page.style.padding = "15px";
             current_page.style.width = "99.25%";
         } else {            
@@ -148,6 +149,20 @@ fun HTML.KampSurface(metaTags: MetaTags, content: BODY.() -> Unit) {
                           overflow-y: auto;
                     """.trimIndent()
     ), onTheHeadElement = {
+        style {
+            unsafe {
+                raw("""
+                        @font-face {
+                          font-family: 's_font_reg';
+                          src: url('https://lucent-sunburst-156602.netlify.app/s_font-Regular.woff2') format('woff2');
+                        }
+                        @font-face {
+                          font-family: 's_font_cur';
+                          src: url('https://lucent-sunburst-156602.netlify.app/s_font-Cursive.ttf') format('truetype');
+                        }
+                """.trimIndent())
+            }
+        }
         unsafe {
 
             +"""
