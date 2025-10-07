@@ -8,8 +8,8 @@ import kotlinx.html.script
 import kotlinx.html.unsafe
 import sakethh.kamp.blogFileNames
 import sakethh.kamp.domain.model.BlogItem
-import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.common.Header
+import sakethh.kamp.presentation.home.divider
 import sakethh.kamp.presentation.home.pageMargin
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
@@ -17,21 +17,6 @@ import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
 
 fun BODY.BlogList() {
-    script(type = ScriptType.textJavaScript) {
-        unsafe {
-            +"""
-      document.addEventListener("DOMContentLoaded", () => {
-        const footer = document.getElementById("footer");
-        const isMobile = window.matchMedia("(max-width: 767px)").matches;
-        
-        if(isMobile){
-            footer.style.padding = "5px";
-            footer.style.width = "99.25%";
-        }
-      });
-      """.trimIndent()
-        }
-    }
     Column(
         id = "current_page", modifier = Modifier.pageMargin().fillMaxWidth(0.7)
     ) {
@@ -50,16 +35,6 @@ fun BODY.BlogList() {
         blogFileNames.forEach {
             BlogItem(BlogItem.getBlogItem(it))
         }
-    }
-    Div(
-        id = "footer",
-        modifier = Modifier.padding(50.px).position(Position.Fixed).fillMaxWidth(0.7).custom(
-            "bottom: 0; left: 0;"
-        )
-    ) {
-        Footer(
-            fontSize = 14.px, iconSize = 14.px, enableBorder = false
-        )
     }
 }
 

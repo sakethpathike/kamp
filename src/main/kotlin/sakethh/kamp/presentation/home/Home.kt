@@ -13,6 +13,8 @@ import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
+import sakethh.kapsule.Row
+import sakethh.kapsule.Spacer
 import sakethh.kapsule.utils.*
 
 fun BODY.Home() {
@@ -96,16 +98,7 @@ fun BODY.Home() {
             modifier = Modifier.custom("line-height:1.4; ")
         )
         Spacer(modifier = Modifier.height(4.px))
-        Row(
-            verticalAlignment = VerticalAlignment.Center, horizontalAlignment = HorizontalAlignment.Center
-        ) {
-            Spacer(
-                modifier = Modifier.fillMaxWidth(0.98)
-                    .border(radius = 5.px, color = Colors.codeblockBG, width = 1.15.px)
-                    .backgroundColor(Colors.codeblockBG).opacity(0.45)
-                    .margin(start = 7.5.px, end = 7.5.px, top = 15.px, bottom = 15.px)
-            )
-        }
+        divider()
         Text(
             text = "Contact",
             fontWeight = FontWeight.Predefined.Bold,
@@ -154,11 +147,22 @@ fun BODY.Home() {
             RepoItem(githubRepoDTO = it)
             Spacer(modifier = Modifier.height(15.px))
         }
-        Footer()
+        divider()
     }
 }
 
-
+fun FlowContent.divider(){
+    Row(
+        verticalAlignment = VerticalAlignment.Center, horizontalAlignment = HorizontalAlignment.Center
+    ) {
+        Spacer(
+            modifier = Modifier.fillMaxWidth(0.98)
+                .border(radius = 5.px, color = Colors.codeblockBG, width = 1.15.px)
+                .backgroundColor(Colors.codeblockBG).opacity(0.45)
+                .margin(start = 7.5.px, end = 7.5.px, top = 15.px, bottom = 15.px)
+        )
+    }
+}
 private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
     Column {
         Row(
