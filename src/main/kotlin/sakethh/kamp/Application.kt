@@ -109,6 +109,18 @@ fun Application.module() {
 fun HTML.KampSurface(metaTags: MetaTags, content: BODY.() -> Unit) {
     Surface(
         onTheBodyElement = {
+        unsafe {
+            +"""
+                        <script async src="https://www.googletagmanager.com/gtag/js?id=G-V84KZKD6BP"></script>
+                        <script>
+                          window.dataLayer = window.dataLayer || [];
+                          function gtag(){dataLayer.push(arguments);}
+                          gtag('js', new Date());
+
+                          gtag('config', 'G-V84KZKD6BP');
+                        </script>
+                    """.trimIndent()
+        }
         script(type = ScriptType.textJavaScript) {
             unsafe {
                 +"""
@@ -151,7 +163,8 @@ fun HTML.KampSurface(metaTags: MetaTags, content: BODY.() -> Unit) {
     ), onTheHeadElement = {
         style {
             unsafe {
-                raw("""
+                raw(
+                    """
                         @font-face {
                           font-family: 's_font_reg';
                           src: url('https://lucent-sunburst-156602.netlify.app/s_font-Regular.woff2') format('woff2');
@@ -160,7 +173,8 @@ fun HTML.KampSurface(metaTags: MetaTags, content: BODY.() -> Unit) {
                           font-family: 's_font_cur';
                           src: url('https://lucent-sunburst-156602.netlify.app/s_font-Cursive.ttf') format('truetype');
                         }
-                """.trimIndent())
+                """.trimIndent()
+                )
             }
         }
         unsafe {
