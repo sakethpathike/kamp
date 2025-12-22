@@ -2,6 +2,7 @@ package sakethh.kamp.presentation.blog
 
 import kotlinx.html.BODY
 import kotlinx.html.onClick
+import kotlinx.html.unsafe
 import sakethh.kamp.data.blog.MarkdownParser
 import sakethh.kamp.domain.model.BlogItem
 import sakethh.kamp.domain.model.markdown.EmphasisType
@@ -16,6 +17,7 @@ import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kamp.presentation.utils.encodeForHtml
 import sakethh.kapsule.*
 import sakethh.kapsule.utils.*
+import sakethh.kapsule.utils.Shape.RoundedRectangle
 import java.util.*
 
 fun BODY.BlogPage(fileName: String) {
@@ -69,7 +71,7 @@ fun BODY.BlogPage(fileName: String) {
                     is MarkdownNode.CodeBlock -> {
                         val currentTextId = UUID.randomUUID().toString()
                         Column(
-                            modifier = Modifier.clip(Shape.RoundedRectangle(cornerRadius = 15.px)).backgroundColor(
+                            modifier = Modifier.clip(RoundedRectangle(cornerRadius = 15.px)).backgroundColor(
                                 Colors.codeblockBG
                             ).border(radius = 15.px, color = Colors.primaryContainerDark, width = 2.75.px)
                                 .margin(top = 10.px, bottom = 10.px)
@@ -155,14 +157,15 @@ fun BODY.BlogPage(fileName: String) {
                                 ) {
                                     Spacer(
                                         modifier = Modifier.margin(start = 5.px).fillMaxHeight(0.8).width(4.px)
-                                            .clip(Shape.RoundedRectangle(cornerRadius = 5.px))
+                                            .clip(RoundedRectangle(cornerRadius = 5.px))
                                             .backgroundColor(Colors.primaryDark)
                                     )
                                 }
                             }
                             Column(modifier = if (it is MarkdownNode.Quote) Modifier.margin(start = 10.px) else Modifier) {
                                 Span(
-                                    onThisElement = {}, modifier = Modifier.margin(top = 2.5.px, bottom = 2.5.px).fontSize(0.px)
+                                    onThisElement = {},
+                                    modifier = Modifier.margin(top = 2.5.px, bottom = 2.5.px).fontSize(0.px)
                                 ) {
                                     inlineNodes.forEach {
                                         when (it) {
@@ -244,6 +247,12 @@ fun BODY.BlogPage(fileName: String) {
                             modifier = Modifier.margin(top = 5.px, bottom = 5.px)
                                 .border(radius = 15.px, color = Colors.primaryContainerDark, width = 2.75.px)
                         )
+                    }
+
+                    is MarkdownNode.RawHTML -> {
+                        unsafe {
+                            +it.string
+                        }
                     }
                 }
             }

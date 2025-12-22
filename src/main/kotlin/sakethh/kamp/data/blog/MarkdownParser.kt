@@ -55,6 +55,19 @@ class MarkdownParser {
                     )
                 )
 
+                trimmedLineContent.startsWith("RAW_HTML") -> nodes.add(
+                    MarkdownNode.RawHTML(
+                        string = allLines.subList(
+                            fromIndex = currentLineNumber + 1,
+                            toIndex = currentLineNumber + 1 + allLines.subList(currentLineNumber + 1, allLines.size)
+                                .indexOfFirst {
+                                    it == "RAW_HTML"
+                                }.also {
+                                    skipUntilLineNumber = currentLineNumber + it + 2
+                                }).joinToString(separator = "").trim()
+                    )
+                )
+
                 leadingSpaceExists && (trimmedLineContent.startsWith("- ") || trimmedLineContent.startsWith(
                     "+ "
                 ) || Regex("""^\d+\.\s""").containsMatchIn(trimmedLineContent)) -> nodes.add(
