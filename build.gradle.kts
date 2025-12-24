@@ -74,7 +74,7 @@ val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
             blogNamesFile.createNewFile()
         }
         blogNamesFile.writeText(blogDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "blogNames" }
-            ?.joinToString { it.nameWithoutExtension } ?: "")
+            ?.sortedByDescending { it.lastModified() }?.joinToString { it.nameWithoutExtension } ?: "")
     }
 }
 

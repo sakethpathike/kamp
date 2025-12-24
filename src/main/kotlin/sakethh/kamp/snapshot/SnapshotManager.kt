@@ -66,6 +66,9 @@ object SnapshotManager {
         // temp dir for the current clone
         val tempKampSnapshotDir = createTempDirectory()
         val gitLogFile = createTempFile()
+
+        // TODO: Replace this with a ProcessBuilder call to retrieve the Git hash,
+        // as Git is guaranteed to be installed on the GitHub Actions runner.
         val lastCommitHash = HttpClient(CIO).use {
             it.get(urlString = "https://api.github.com/repos/sakethpathike/kamp/commits?sha=master&per_page=1")
                 .bodyAsText().substringAfter("\"sha\"").substringAfter("\"").substringBefore("\"").trim()
@@ -117,8 +120,7 @@ object SnapshotManager {
 - Blog markdown files from the kamp repo are converted to HTML using a custom markdown parser combined with kapsule.
 - The generated files on the master branch of this repo reflect exactly what kamp would serve @${lastCommitHash}.
 - This repo serves as a static snapshot mirror, pushed automatically by kamp-bot.
-
-> Note: HTML files may include JavaScript similar to the live kamp app, so dynamic UI behavior is expected.""".trimIndent()
+""".trimIndent()
                             currentDirectoryEntry.writeText(updatedREADME.trim())
                         }
                     }
