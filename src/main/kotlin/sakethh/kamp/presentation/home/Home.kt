@@ -7,14 +7,11 @@ import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import sakethh.kamp.domain.model.GithubRepoDTO
-import sakethh.kamp.presentation.common.Footer
 import sakethh.kamp.presentation.common.Header
 import sakethh.kamp.presentation.utils.Colors
 import sakethh.kamp.presentation.utils.Constants
 import sakethh.kamp.presentation.utils.blockSelection
 import sakethh.kapsule.*
-import sakethh.kapsule.Row
-import sakethh.kapsule.Spacer
 import sakethh.kapsule.utils.*
 
 fun BODY.Home() {
@@ -72,8 +69,7 @@ fun BODY.Home() {
     }
 
     Column(
-        id = "current_page",
-        modifier = Modifier.pageMargin().fillMaxWidth(0.7)
+        id = "current_page", modifier = Modifier.pageMargin().fillMaxWidth(0.7)
     ) {
         Header(selectedComponent = "home")
         Spacer(modifier = Modifier.height(20.px))
@@ -91,7 +87,8 @@ fun BODY.Home() {
         Text(
             fontFamily = Constants.Inter,
             text = """
-            I build my own tools when I need them, like <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a> and <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a>, which power this site.        """.trimIndent(),
+                I just love creating things. That includes the <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kamp" target="_blank">kamp</a> backend and <a style="color: ${Colors.primaryDark}" href="https://github.com/sakethpathike/kapsule" target="_blank">kapsule</a> library powering this site, and apps like <a style="color: ${Colors.primaryDark}" href="https://github.com/LinkoraApp" target="_blank">Linkora</a>.
+                  """.trimIndent(),
             fontWeight = FontWeight.Custom("400"),
             fontSize = 18.px,
             color = Colors.secondaryDark,
@@ -151,18 +148,18 @@ fun BODY.Home() {
     }
 }
 
-fun FlowContent.divider(){
+fun FlowContent.divider() {
     Row(
         verticalAlignment = VerticalAlignment.Center, horizontalAlignment = HorizontalAlignment.Center
     ) {
         Spacer(
-            modifier = Modifier.fillMaxWidth(0.98)
-                .border(radius = 5.px, color = Colors.codeblockBG, width = 1.15.px)
+            modifier = Modifier.fillMaxWidth(0.98).border(radius = 5.px, color = Colors.codeblockBG, width = 1.15.px)
                 .backgroundColor(Colors.codeblockBG).opacity(0.45)
                 .margin(start = 7.5.px, end = 7.5.px, top = 15.px, bottom = 15.px)
         )
     }
 }
+
 private fun FlowContent.RepoItem(githubRepoDTO: GithubRepoDTO) {
     Column {
         Row(
@@ -245,7 +242,7 @@ private fun FlowContent.ContactItem(
     )
 }
 
-// as of now this is directly used in the presentation layer, ig that's not how it works (according to clean arch 🤓☝️)
+// too much raw scraping?
 fun getPinnedRepos(): List<GithubRepoDTO> = runBlocking {
     val pinnedRepos = mutableListOf<GithubRepoDTO>()
     HttpClient(CIO).use {
