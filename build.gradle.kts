@@ -2,7 +2,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.awt.Color
 import java.awt.Font
 import java.awt.RenderingHints
+import java.awt.font.TextAttribute
 import java.awt.image.BufferedImage
+import java.net.URL
+import java.text.AttributedString
 import javax.imageio.ImageIO
 
 val kotlin_version: String by project
@@ -78,7 +81,35 @@ val generateBlogFileNamesTxt = tasks.register("generateBlogFileNamesTxt") {
 val generateOGImagesForBlogs by tasks.registering {
     doLast {
         val blogDir = file("src/main/resources/blog")
-        val dmSansFont = Font.createFont(Font.TRUETYPE_FONT, File("src/main/resources/fonts/dm_sans.ttf"))
+
+        val emojiFontPath = "build/tmp/fonts/notoEmoji.ttf"
+        val dmSansFontPath = "build/tmp/fonts/dmSans.ttf"
+
+        val emojiFontFile = file(emojiFontPath)
+        val dmSansFontFile = file(dmSansFontPath)
+
+        if (!emojiFontFile.exists()) {
+            emojiFontFile.parentFile.mkdirs()
+            val fontUrl = "https://flourishing-kheer-2fa1f8.netlify.app/NotoEmoji-VariableFont_wght.ttf"
+
+            URL(fontUrl).openStream().use { input ->
+                emojiFontFile.outputStream().use { output -> input.copyTo(output) }
+            }
+        }
+
+        if (!dmSansFontFile.exists()) {
+            dmSansFontFile.parentFile.mkdirs()
+            val fontUrl = "https://flourishing-kheer-2fa1f8.netlify.app/dm_sans.ttf"
+
+            URL(fontUrl).openStream().use { input ->
+                dmSansFontFile.outputStream().use { output -> input.copyTo(output) }
+            }
+        }
+
+        val notoEmojiFont = Font.createFont(Font.TRUETYPE_FONT, File(emojiFontPath))
+        val dmSansFont = Font.createFont(Font.TRUETYPE_FONT, File(dmSansFontPath))
+        val baseFont = dmSansFont.deriveFont(Font.BOLD, 265f)
+
         blogDir.listFiles()?.filter { it.isFile && it.nameWithoutExtension != "blogNames" }?.forEach { blogFile ->
             val scale = 3
             val imageWidth = 1200 * scale
@@ -90,6 +121,9 @@ val generateOGImagesForBlogs by tasks.registering {
             graphics2D.color = Color.decode("#131318")
 
             graphics2D.fillRect(0, 0, imageWidth, imageHeight)
+
+            // for text
+            graphics2D.color = Color.decode("#BFC2FF")
 
             // kamp logo
             graphics2D.drawImage(
@@ -104,26 +138,47 @@ val generateOGImagesForBlogs by tasks.registering {
             graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
             graphics2D.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
 
-            graphics2D.font = dmSansFont.deriveFont(Font.BOLD, 265f)
-
-            // for title
-            graphics2D.color = Color.decode("#BFC2FF")
-
             var initialDeductionOfHeight = 0
+
             blogFile?.readText()?.substringAfter("title: ")?.substringBefore("\n")?.trim()?.split("#BREAK#")?.also {
-                initialDeductionOfHeight = 350 + (if (it.size > 1)  (250 * (it.size)) + (25 + it.size)  else 250)
+                initialDeductionOfHeight = 350 + (if (it.size > 1) (250 * (it.size)) + (25 + it.size) else 250)
             }?.map { it.trim() }?.let {
                 it.forEachIndexed { index, string ->
-                    graphics2D.drawString(
-                        string, 225, (imageHeight - (initialDeductionOfHeight - (300 * index)))
-                    )
+                    if (dmSansFont.canDisplayUpTo(string) == -1) {
+                        graphics2D.font = baseFont
+
+                        graphics2D.drawString(
+                            string, 225, (imageHeight - (initialDeductionOfHeight - (300 * index)))
+                        )
+                    } else {
+                        val yPosition = (imageHeight - (initialDeductionOfHeight - (300 * index))).toFloat()
+                        val xPosition = 225f
+
+                        val attrString = AttributedString(string)
+
+                        attrString.addAttribute(TextAttribute.FONT, baseFont)
+                        attrString.addAttribute(TextAttribute.FOREGROUND, Color.decode("#BFC2FF"))
+
+                        val emojiFallback = notoEmojiFont.deriveFont(265f)
+
+                        string.forEachIndexed { charIndex, _ ->
+                            val codePoint = string.codePointAt(charIndex)
+
+                            // TIL: Most emojis are 32-bit
+                            // If we treat each `char` as a single character, an emoji gets split into two halves
+                            val charCount = Character.charCount(codePoint)
+
+                            if (!baseFont.canDisplay(codePoint)) {
+                                attrString.addAttribute(
+                                    TextAttribute.FONT, emojiFallback, charIndex, charIndex + charCount
+                                )
+                            }
+                        }
+
+                        graphics2D.drawString(attrString.iterator, xPosition, yPosition)
+                    }
                 }
             }
-
-
-            // below title
-            graphics2D.color = Color.decode("#C5C4DD")
-            graphics2D.font = dmSansFont.deriveFont(Font.PLAIN, 75f)
 
             graphics2D.dispose()
 
